@@ -9,7 +9,7 @@ from pydantic import (
 
 # Import the project models
 from modules.base.models.base import AppBaseModelWithHashAndAuditLog
-from modules.base.models.organization import Organization
+from modules.core.models.organization import Organization
 
 
 class User(AppBaseModelWithHashAndAuditLog):
