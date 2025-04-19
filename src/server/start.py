@@ -22,7 +22,11 @@ from modules.base.config import config
 
 
 # Create an instance of the FastAPI class
-app = FastAPI()
+app = FastAPI(
+    title="aQveir FastAPI Template",
+    description="aQveir FastAPI Template",
+    version="0.1.0"
+)
 
 
 # Create an instance of the OAuth2PasswordBearer class

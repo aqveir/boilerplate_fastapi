@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from pydantic_settings import BaseSettings
 
@@ -62,14 +63,14 @@ class ProductionConfig(Config):
     DEBUG: bool = False
 
 
-def get_config():
+def get_config() -> Config:
     env = os.getenv("ENV", "local")
-    config_type = {
-        "test": TestConfig(),
+    config_type: List[str, Config] = {
         "local": LocalConfig(),
-        "prod": ProductionConfig(),
+        "test": TestConfig(),
+        "production": ProductionConfig(),
     }
-    return config_type[env]
+    return config_type[env].model_validate({})
 
 
 config: Config = get_config()

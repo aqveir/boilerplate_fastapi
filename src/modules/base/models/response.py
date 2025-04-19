@@ -6,7 +6,8 @@ from pydantic import SerializeAsAny, BaseModel
 from starlette.background import BackgroundTask
 
 # Include the project models
-from .base import GenericResponse, T
+from .base import GenericResponse as GenericResponseModel, T
+from ..exceptions.base import GenericBaseException
 
 
 """ Generic Success Response Model
@@ -21,15 +22,33 @@ It contains the following fields:
 - errors: The errors of the response.
 - metadata: The metadata of the response.
 """
-class SuccessModel(GenericResponse, Generic[T]):
+class SuccessModel(GenericResponseModel, Generic[T]):
     """
     Base model for all success response models.
     """
     status_code: int = status.HTTP_200_OK
     message: str = "success"
     success: bool = True
-    data: Optional[SerializeAsAny[T]] = None
-    metadata: Optional[SerializeAsAny[dict]] = None
+
+
+""" Generic Error Response Model
+
+This model is used to represent the error response for all the endpoints.
+It contains the following fields:
+- status_code: The HTTP status code of the response.
+- error_code: The error code of the response.
+- error_msg_code: The error message code of the response.
+- message: The error message of the response.
+- context: The context of the error.
+- success: A boolean indicating whether the request was successful or not.
+"""
+class ErrorModel(GenericResponseModel, Generic[T]):
+    """
+    Base model for all error response models.
+    """
+    status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
+    message: str = "error"
+    success: bool = False
 
 
 class BaseResponse(Response):
@@ -39,19 +58,50 @@ class BaseResponse(Response):
     media_type: str = "application/json"
 
 
-class JsonErrorResponse(Response):
-    """
-    Base class for all JSON Error response models.
-    """
-
+class JsonErrorResponse(BaseResponse):
     media_type: str = "application/json"
-    status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
-    success: bool = False
 
-    message: str = "error"
-    data: Optional[SerializeAsAny[dict]] = None
-    errors: Optional[SerializeAsAny[dict]] = None
-    # metadata: Optional[SerializeAsAny[dict]] = None
+    def __init__(
+        self,
+        content: typing.Any,
+        message: str = "error",
+        status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR,
+        headers: typing.Mapping[str, str] | None = None,
+        media_type: str | None = None,
+        background: BackgroundTask | None = None,
+    ) -> None:
+        # check content is a class of pydantic model
+        if isinstance(content, GenericBaseException):
+            exception: GenericBaseException = content
+
+            # Create an instance of the error model
+            error_model = ErrorModel()
+            error_model.errors = {}
+
+            if exception.status_code:
+                error_model.status_code = exception.status_code
+                status_code = exception.status_code
+            if exception.error_code:
+                error_model.errors['code'] = exception.error_code
+            if exception.error_msg_code:
+                error_model.errors['msg_code'] = exception.error_msg_code
+            if exception.message:
+                error_model.message = exception.message
+            if exception.__class__:
+                error_model.errors['context'] = exception.__class__.__name__
+
+            content = error_model.model_dump(mode="json")
+
+        super().__init__(content, status_code, headers, media_type, background)
+
+    def render(self, content: typing.Any) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":"),
+        ).encode("utf-8")
 
 
 """ JSON Success Response

@@ -70,9 +70,8 @@ class GenericResponse(BaseModel, Generic[T]):
     message: str
     success: bool = True
     data: Optional[SerializeAsAny[T]] = None
-    errors: Optional[SerializeAsAny[T]] = None
+    errors: Optional[SerializeAsAny[dict]] = None
     metadata: Optional[SerializeAsAny[dict]] = None
-
 
 
 class GenericSuccessResponse(GenericResponse, Generic[T]):
@@ -81,33 +80,3 @@ class GenericSuccessResponse(GenericResponse, Generic[T]):
     success: bool = True
     data: Optional[SerializeAsAny[T]] = None
     metadata: Optional[SerializeAsAny[dict]] = None
-
-
-
-
-"""Generic Error Response Model
-
-This model is used to represent the error response for all the endpoints.
-It contains the following fields:
-- status_code: The HTTP status code of the response.
-- error_code: The error code of the response.
-- error_msg_code: The error message code of the response.
-- message: The error message of the response.
-- context: The context of the error.
-- success: A boolean indicating whether the request was successful or not.
-"""
-class ErrorResponseModel(BaseModel):
-    """
-    Base model for all error response models.
-    """
-
-    status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
-    error_code: str = "error_code_generic"
-    error_msg_code: str = "error_code_generic"
-    message: str = "error_message"
-    context: str = "exception"
-    success: bool = False
-
-    errors: Optional[dict] = None
-    data: Optional[dict] = None
-    metadata: Optional[dict] = None
