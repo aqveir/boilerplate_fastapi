@@ -1,6 +1,8 @@
 import json
 from typing import List
 from fastapi import Request
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 # Include the project controllers
 from modules.base.controller.base import BaseController
@@ -10,8 +12,9 @@ from ..services.service import AuthService
 
 # Include the project models
 from ..models.base import Auth
-from ..models.request import LoginRequest
+from ..models.request import LoginRequest, RegisterRequest
 from ..models.response import AuthSuccessResponse
+from modules.base.models.response import JsonSuccessResponse
 
 
 class AuthController(BaseController[Auth]):
@@ -20,26 +23,95 @@ class AuthController(BaseController[Auth]):
         self.service = AuthService()
 
 
-    async def authenticate(self, credentials: LoginRequest, request: Request):
-        ip_address = request.client.host
+    async def authenticate(self, credentials: LoginRequest, request: Request) -> JsonSuccessResponse:
+        try:
+            ip_address = request.client.host
 
-        data: dict[str, any] = await self.service.authenticate(credentials, ip_address)
+            response: BaseModel = await self.service.authenticate(credentials, ip_address)
+
+            # Get data from the service
+            return JsonSuccessResponse(
+                content=response, 
+                message="Authentication successful"
+            )
+        except Exception as e:
+            raise e
+
+
+    async def logout(self, access_token: str, is_forced: bool = False) -> JsonSuccessResponse:
+        try:
+            response: BaseModel = await self.service.logout(
+                token=access_token,
+                is_forced=is_forced
+            )
+
+            # Get data from the service
+            return JsonSuccessResponse(
+                content=response, 
+                message="Logout successful"
+            )
+        except Exception as e:
+            raise e
+    
+
+    async def register(self, payload: RegisterRequest, request: Request) -> JsonSuccessResponse:
+        try:
+            ip_address = request.client.host
+
+            response: BaseModel = await self.service.register(
+                payload=payload,
+                ip_address=ip_address
+            )
+
+            # Get data from the service
+            return JsonSuccessResponse(content=response, message="Registration successful")
+        except Exception as e:
+            raise e
+
+
+    async def refresh_token(self, refresh_token: str) -> JsonSuccessResponse:
+        data: dict[str, any] = await self.service.refresh_token(
+            token=refresh_token
+        )
 
         # Get data from the service
         return AuthSuccessResponse(
-            message="Login successful",
+            message="Refresh token successful",
+            data=data
+        )
+    
+    async def forgot_password(self, email: str) -> JsonSuccessResponse:
+        data: dict[str, any] = await self.service.forgot_password(
+            email=email
+        )
+
+        # Get data from the service
+        return AuthSuccessResponse(
+            message="Forgot password successful",
             data=data
         )
 
-
-    async def logout(self, access_token: str, is_forced: bool = False) -> bool:
-        data: dict[str, any] = await self.service.logout(
-            token=access_token,
-            is_forced=is_forced
+    async def reset_password(self, token: str, password: str) -> JsonSuccessResponse:
+        data: dict[str, any] = await self.service.reset_password(
+            token=token,
+            password=password
         )
 
         # Get data from the service
         return AuthSuccessResponse(
-            message="Logout successful"
+            message="Reset password successful",
+            data=data
+        )
+
+    async def change_password(self, token: str, password: str) -> JsonSuccessResponse:
+        data: dict[str, any] = await self.service.change_password(
+            token=token,
+            password=password
+        )
+
+        # Get data from the service
+        return AuthSuccessResponse(
+            message="Change password successful",
+            data=data
         )
     

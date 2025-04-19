@@ -7,7 +7,7 @@ class Config(BaseSettings):
     ENV: str = "development"
     DEBUG: bool = True
     APP_HOST: str = "0.0.0.0"
-    APP_PORT: int = 8000
+    APP_PORT: int = 8080
     WRITER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
     READER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
 
@@ -32,6 +32,14 @@ class Config(BaseSettings):
     CLAIM_TABLE_NAME: str = "auth_claim_table"
     CLAIM_TABLE_KEY: str = "key"
 
+    # Domain settings
+    RESTRICTED_DOMAINS: list[str] = ["example.com", "gmail.com"]
+    ALLOWED_DOMAINS: list[str] = [
+        "localhost",
+        "aqveir.in",
+        "*.aqveir.in",
+    ]
+
     SENTRY_SDN: str = ""
     CELERY_BROKER_URL: str = "amqp://user:bitnami@localhost:5672/"
     CELERY_BACKEND_URL: str = "redis://:password123@localhost:6379/0"
@@ -50,6 +58,7 @@ class LocalConfig(Config):
 
 
 class ProductionConfig(Config):
+    ENV: str = "production"
     DEBUG: bool = False
 
 

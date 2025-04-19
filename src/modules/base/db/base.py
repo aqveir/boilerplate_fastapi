@@ -1,14 +1,14 @@
-from sqlalchemy.orm import (DeclarativeBase, Mapped, mapped_column)
+from datetime import datetime
+from uuid import UUID
+
+# Importing necessary modules from SQLAlchemy
 from sqlalchemy import (
-    Column,
-    Integer,
-    UUID,
-    String,
+    BigInteger,
+    Uuid,
     DateTime,
-    Float,
-    Boolean,
-    ForeignKey,
+    Boolean
 )
+from sqlalchemy.orm import (DeclarativeBase, Mapped, mapped_column)
 
 
 class BaseDB(DeclarativeBase):
@@ -23,7 +23,7 @@ class BaseSchema(BaseDB):
     __abstract__ = True
 
     # Primary key and unique identifiers
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True, autoincrement=True, sort_order=-10)
 
 
 class BaseSchema_AuditLog(BaseSchema):
@@ -34,16 +34,14 @@ class BaseSchema_AuditLog(BaseSchema):
     __abstract__ = True
 
     # Audit fields
-    created_at = Column(DateTime, default=DateTime.utcnow())
-    created_by = Column(Integer, default=0)
-    updated_at = Column(DateTime, nullable=True)
-    updated_by = Column(Integer, nullable=True)
-    deleted_at = Column(DateTime, nullable=True)
-    deleted_by = Column(Integer, nullable=True)
-    is_active = Column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=DateTime.utcnow(), sort_order=100)
+    created_by: Mapped[int] = mapped_column(BigInteger, default=0, sort_order=101)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, onupdate=DateTime.utcnow(), sort_order=102)
+    updated_by: Mapped[int] = mapped_column(BigInteger, nullable=True, sort_order=103)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=1, sort_order=110)
 
 
-class BaseSchema_UUID_AuditLog(BaseSchema):
+class BaseSchema_UUID(BaseSchema):
     """
     Base schema for all models requiring UUID and audit logging.
     This schema defines the structure of the base data.
@@ -51,17 +49,10 @@ class BaseSchema_UUID_AuditLog(BaseSchema):
     __abstract__ = True
 
     # Unique identifiers
-    hash: Mapped[UUID] = Column(UUID, unique=True, index=True)
-
-    # Audit fields
-    created_at = Column(DateTime, default=DateTime.utcnow())
-    created_by = Column(Integer, default=0)
-    updated_at = Column(DateTime, nullable=True)
-    updated_by = Column(Integer, nullable=True)
-    is_active = Column(Integer, default=1)
+    hash: Mapped[UUID] = mapped_column(Uuid, unique=True, index=True, sort_order=-9)
 
 
-class BaseSchema_UUID_AuditLog_DeleteLog(BaseSchema_UUID_AuditLog):
+class BaseSchema_AuditLog_DeleteLog(BaseSchema_AuditLog):
     """
     Base schema for all models.
     This schema defines the structure of the base data.
@@ -69,5 +60,9 @@ class BaseSchema_UUID_AuditLog_DeleteLog(BaseSchema_UUID_AuditLog):
     __abstract__ = True
 
     # Audit fields (Delete log)
-    deleted_at = Column(DateTime, nullable=True)
-    deleted_by = Column(Integer, nullable=True)
+    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, sort_order=104)
+    deleted_by: Mapped[int] = mapped_column(BigInteger, nullable=True, sort_order=105)
+
+
+class BaseSchema_UUID_AuditLog_DeleteLog(BaseSchema_UUID, BaseSchema_AuditLog_DeleteLog):
+    pass

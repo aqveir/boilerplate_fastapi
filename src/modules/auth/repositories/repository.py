@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from modules.auth.models.base import Auth
 from modules.user.models.user import User
-from modules.core.models.organization import Organization
+from modules.core.models.organization.organization import Organization
 
 from ..models.request import LoginRequest
 

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Request
 from ..controllers.controller import AuthController
 
 # Include the project models
-from ..models.request import LoginRequest
+from ..models.request import *
 
 # Import middlewares and dependencies
 from modules.base.fastapi.decorations.security import test_permissions
@@ -36,3 +36,11 @@ async def logout(
 ):
     access_token: str = auth.valid_token()
     return await AuthController().logout(access_token, is_forced=True)
+
+
+@router.post("/register")
+async def register(
+    payload: RegisterRequest,
+    request: Request
+):
+    return await AuthController().register(payload, request)

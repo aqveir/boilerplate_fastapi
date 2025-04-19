@@ -1,3 +1,4 @@
+import typing
 from typing import Callable
 
 
@@ -20,7 +21,7 @@ class BaseEvent:
             self.subscribers.remove(self.event_name)
         
 
-    def raise_event(self, data):
+    def raise_event(self, data: typing.Any):
         if not self.event_name in self.subscribers:
             print(f"No subscribers for Event: {self.event_name}")
             return

@@ -1,6 +1,6 @@
-from datetime import datetime, timezone, timedelta
+import typing
 
-from fastapi import Depends
+from pydantic import BaseModel
 
 from ...helpers.token import TokenHelper
 from .token_service import TokenService
@@ -35,24 +35,19 @@ class ClaimService:
     The claim is created using the TokenHelper class, which generates
     a JWT token with the given payload and expiration period.
     """
-    def create(self, payload: dict, user: dict={}) -> AuthClaim:
+    def create(self, payload: dict, user: typing.Any) -> AuthClaim:
         # Generate a token
         token: Token = TokenHelper.encode(payload, expire_period=config.JWT_EXPIRES)
         if not token:
             raise InvalidTokenException(error_msg_code="error_code_token_generation")
+
+        if isinstance(user, BaseModel):
+            user = user.model_dump(mode='json')
         
         # Create a claim with the token and user data
         claim: AuthClaim = AuthClaim(token=token, user=user)
         if not claim:
             raise InvalidTokenException(error_msg_code="error_code_claim_generation")
-        # else:
-            # new_claim: AuthClaim = claim.model_copy()
-
-
-            # # check if the claim has user organization data
-            # if new_claim.user is not None and new_claim.user.get('organization', None) is not None:
-            #     # remove the organization data from the user object
-            #     new_claim.user.pop('organization', None)
 
         # Store the claim in storage
         self.store(claim)

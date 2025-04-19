@@ -15,7 +15,10 @@ from modules.base.exceptions.base import *
 from modules.base.exceptions.handler import custom_exception_handler
 
 # Import the project event handlers
-from modules.user.listeners.user_listener import setup_log_event_handlers
+# from modules.user.listeners.user_listener import setup_log_event_handlers
+
+# Import the project configuration
+from modules.base.config import config
 
 
 # Create an instance of the FastAPI class
@@ -26,7 +29,8 @@ app = FastAPI()
 #oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-"""
+""" CORS Middleware
+
 CORS (Cross-Origin Resource Sharing) is a security feature
 implemented in web browsers to restrict JavaScript code.
 
@@ -48,7 +52,8 @@ app.add_middleware(
 )
 
 
-"""
+""" Trusted Host Middleware
+
 The TrustedHostMiddleware is used to restrict the access to the
 API to only the specified origins. The origins variable contains
 the list of origins that are allowed to access the API.
@@ -58,11 +63,7 @@ domains such as *.example.com are supported for matching subdomains.
 To allow any hostname either use allowed_hosts=["*"] or omit the 
 middleware.
 """
-allowed_hosts = [
-    "localhost",
-    "aqveir.in",
-    "*.aqveir.in",
-]
+allowed_hosts: list[str] = config.ALLOWED_DOMAINS
 
 app.add_middleware(
     TrustedHostMiddleware, 
@@ -127,18 +128,3 @@ async def root():
 def health():
     """Api health endpoint."""
     return {"Api is up and running"}
-
-def start_server():
-    # print('Starting Server...')       
-    uvicorn.run(
-        "server.main:app",
-        host="0.0.0.0",
-        port=8080,
-        log_level="debug",
-        reload=True
-    )
-    # webbrowser.open("http://127.0.0.1:8080")
-    # uvicorn server.main:app --host 0.0.0.0 --port 8080
-
-if __name__ == "__main__":
-    start_server()

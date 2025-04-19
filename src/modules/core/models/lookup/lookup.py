@@ -1,20 +1,13 @@
 from pydantic import Field
 
 # Import the project models
-from modules.base.models.base import AppBaseModelWithHashAndAuditLog
+from modules.base.models.base import *
 
-# Define the Enum
-class LookupMaster(str):
-    """
-    Lookup Master Type Enum.
-    """
-    ORGANIZATION_TYPE = "organization_type"
-    USER_TYPE = "user_type"
-    USER_STATUS = "user_status"
+# Import the enums
+from modules.core.enums.lookup import LookupMaster
 
 
-
-class Lookup(AppBaseModelWithHashAndAuditLog):
+class Lookup(AppBaseModelWithAuditLog):
     """
     Lookup model for the application.
     """
@@ -23,3 +16,6 @@ class Lookup(AppBaseModelWithHashAndAuditLog):
     description: str = Field(default=None, description="Description", exclude=True, max_length=256, examples=["My Lookup Description"])
 
     lookup_type: LookupMaster = Field(default=None, description="Lookup Type", exclude=True, examples=["organization_type"])
+
+    order_by: int = Field(default=0, description="Order By", exclude=True, examples=[1])
+    is_editable: bool = Field(default=True, description="Is Editable", exclude=True, examples=[True])

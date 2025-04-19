@@ -1,9 +1,11 @@
-from typing import Annotated, Self
+from typing import Generic, List, Optional, TypeVar, Union
 
 from uuid import UUID, uuid1
 from datetime import datetime, date
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, PlainSerializer, TypeAdapter, computed_field, field_serializer, model_validator
+from fastapi import status
+from pydantic import (BaseModel, Field, SerializeAsAny, computed_field, field_serializer)
 
+T = TypeVar('T')
 
 class ApplicationBaseModel(BaseModel):
     """
@@ -23,7 +25,7 @@ class AppBaseModelWithHash(ApplicationBaseModel):
         return str(value)
 
 
-class AppBaseModelWithHashAndAuditLog(AppBaseModelWithHash):
+class AppBaseModelWithAuditLog(ApplicationBaseModel):
     """
     Base model for the application with hash and audit log.
     """
@@ -50,3 +52,62 @@ class AppBaseModelWithHashAndAuditLog(AppBaseModelWithHash):
             return_value = self.created_at
 
         return return_value
+    
+
+class AppBaseModelWithHashAndAuditLog(AppBaseModelWithAuditLog):
+    """
+    Base model for the application with hash.
+    """
+    hash: UUID = Field(default_factory=lambda: uuid1(), description="Hash")
+
+    @field_serializer('hash', when_used='json')
+    def serialize_hash(self, value: UUID) -> str:
+        return str(value)
+    
+    
+class GenericResponse(BaseModel, Generic[T]):
+    status_code: int
+    message: str
+    success: bool = True
+    data: Optional[SerializeAsAny[T]] = None
+    errors: Optional[SerializeAsAny[T]] = None
+    metadata: Optional[SerializeAsAny[dict]] = None
+
+
+
+class GenericSuccessResponse(GenericResponse, Generic[T]):
+    status_code: int = status.HTTP_200_OK
+    message: str = "success"
+    success: bool = True
+    data: Optional[SerializeAsAny[T]] = None
+    metadata: Optional[SerializeAsAny[dict]] = None
+
+
+
+
+"""Generic Error Response Model
+
+This model is used to represent the error response for all the endpoints.
+It contains the following fields:
+- status_code: The HTTP status code of the response.
+- error_code: The error code of the response.
+- error_msg_code: The error message code of the response.
+- message: The error message of the response.
+- context: The context of the error.
+- success: A boolean indicating whether the request was successful or not.
+"""
+class ErrorResponseModel(BaseModel):
+    """
+    Base model for all error response models.
+    """
+
+    status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
+    error_code: str = "error_code_generic"
+    error_msg_code: str = "error_code_generic"
+    message: str = "error_message"
+    context: str = "exception"
+    success: bool = False
+
+    errors: Optional[dict] = None
+    data: Optional[dict] = None
+    metadata: Optional[dict] = None

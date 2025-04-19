@@ -3,7 +3,7 @@ from typing import List
 
 # Include the project models
 from ..models.base import Auth
-from ..models.request import LoginRequest
+from ..models.request import *
 from modules.user.models.user import User
 from modules.base.models.auth.claim import AuthClaim
 
@@ -46,7 +46,7 @@ class AuthService:
                     payload={
                         "user_id": authenticated_user.id
                     }, 
-                    user=authenticated_user.model_dump(mode='json')
+                    user=authenticated_user
                 )
 
                 # Set update the user status
@@ -54,7 +54,7 @@ class AuthService:
                 # Raise event for successful login
                 LoginEvent().raise_event(claim)
 
-            return claim.model_dump(mode='json')  
+            return claim
         except Exception as e:
             raise e
 
@@ -79,6 +79,31 @@ class AuthService:
                 # Raise event for successful logout
 
                 return True
+        except Exception as e:
+            raise e
+
+
+    """ Register the user
+
+    Register the user with the given payload and IP address.
+    This method validates the payload and creates a new user.
+    If the registration is successful, it returns the payload.
+    If the registration fails, it raises an exception.
+    """
+    async def register(self, payload: RegisterRequest, ip_address: str) -> dict:
+        try:
+            # Validate the payload
+            # user: User = await self.repository.register_user(payload)
+
+            # Create and store the claim
+            # claim: AuthClaim = self.claim_service.create(
+            #     payload={
+            #         "user_id": user.id
+            #     }, 
+            #     user=user.model_dump(mode='json')
+            # )
+
+            return payload
         except Exception as e:
             raise e
 
