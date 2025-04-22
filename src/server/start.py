@@ -1,3 +1,4 @@
+import logging
 import uvicorn
 
 from fastapi import FastAPI
@@ -19,6 +20,15 @@ from modules.base.exceptions.handler import custom_exception_handler
 
 # Import the project configuration
 from modules.base.config import config
+
+
+# Setup loggers
+# https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig
+logging.config.fileConfig('config/logging.conf', disable_existing_loggers=False)
+
+# get root logger
+logger = logging.getLogger(__name__)  # the __name__ resolve to "main" since we are at the root of the project. 
+                                      # This will get the root logger since no logger in the configuration has this name.
 
 
 # Create an instance of the FastAPI class
@@ -122,6 +132,16 @@ app.add_exception_handler(
 
 # Add event handlers
 
+
+# on server start method
+@app.on_event("startup")
+async def startup_event():
+    logger.info("********** Starting the server **********")
+
+# on server stop method
+@app.on_event("shutdown")
+async def shutdown_event():
+    logger.info("********** Stopping the server **********")
 
 
 @app.get("/")

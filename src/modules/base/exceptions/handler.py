@@ -1,3 +1,4 @@
+import logging
 from typing import Callable
 from fastapi import Request
 
@@ -7,12 +8,14 @@ from ..models.response import JsonErrorResponse
 # Import the project models
 from .base import GenericBaseException
 
+# Set Error logger
+logger = logging.getLogger("error")
 
 def custom_exception_handler() -> Callable[[Request, GenericBaseException], JsonErrorResponse]:
     async def exception_handler(_: Request, exception: GenericBaseException) -> JsonErrorResponse:
 
         # Log the exception if needed
-        #logger.error(exc)
+        logger.error(exception)
         
         return JsonErrorResponse(
             content=exception
