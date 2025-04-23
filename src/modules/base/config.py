@@ -1,14 +1,21 @@
 import os
 from typing import List
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
-    ENV: str = "development"
+    ENVIRONMENT: str = "development"
     DEBUG: bool = True
+
+    # FastAPI settings
+    APP_NAME: str = "FastAPI"
+    APP_VERSION: str = "0.1.0"
+    APP_DESCRIPTION: str = "FastAPI application"
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8080
+
+    # Database settings
     WRITER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
     READER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
 
@@ -55,11 +62,16 @@ class TestConfig(Config):
 
 
 class LocalConfig(Config):
-    ...
+    model_config = SettingsConfigDict(
+        env_file="env/.env.local",
+        env_file_encoding="utf-8",
+        validate_assignment=True,
+        validate_default=True,
+    )
 
 
 class ProductionConfig(Config):
-    ENV: str = "production"
+    ENVIRONMENT: str = "production"
     DEBUG: bool = False
 
 
