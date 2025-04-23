@@ -13,20 +13,20 @@ class Config(BaseSettings):
     READER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
 
     # AWS settings
-    AWS_ACCESS_KEY_ID: str = "AKIAUSRZADENQ6Z5S3EU"
-    AWS_SECRET_ACCESS_KEY: str = "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"
-    AWS_REGION: str = "us-east-1"
+    AWS_ACCESS_KEY_ID: str = "__aws_access_key_id__"
+    AWS_SECRET_ACCESS_KEY: str = "__aws_secret_access_key__"
+    AWS_REGION: str = "__aws_region__"
 
     AWS_S3_ENDPOINT_URL: str = "https://s3.amazonaws.com"
     AWS_S3_REGION_NAME: str = "us-east-1"
     AWS_S3_BUCKET: str = ""
 
     # JWT settings
-    JWT_SECRET_KEY: str = "fastapi"
+    JWT_SECRET_KEY: str = "__jwt_secret_key__"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRES: int = 3600
-    JWT_ISSUER: str = "fastapi"
-    JWT_AUDIENCE: str = "fastapi"
+    JWT_ISSUER: str = "__jwt_issuer__"
+    JWT_AUDIENCE: str = "__jwt_audience__"
 
     # Auth settings
     CLAIM_STORAGE: str = "dynamodb"
