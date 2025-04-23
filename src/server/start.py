@@ -2,6 +2,7 @@ import logging
 import uvicorn
 
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
 # Import the middlewares
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,11 +32,40 @@ logger = logging.getLogger(__name__)  # the __name__ resolve to "main" since we 
                                       # This will get the root logger since no logger in the configuration has this name.
 
 
+""" Lifespan Event Handler """
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for the FastAPI app.
+
+    This function is called when the app starts and stops.
+    It is used to set up and tear down resources that are needed
+    for the app to run.
+    """
+    # Setup log event handlers
+    # setup_log_event_handlers()
+    try:
+        # Starting the server
+        logger.info("********** Starting the server **********")
+
+
+        yield
+    finally:
+        # Stopping the server
+        logger.info("********** Stopping the server **********")
+
+        # Cleanup log event handlers
+        # cleanup_log_event_handlers()        
+
+        # Cleanup resources here if needed
+        logger.info("********** Server Stopped **********")
+
+
 # Create an instance of the FastAPI class
 app = FastAPI(
     title="aQveir FastAPI Template",
     description="aQveir FastAPI Template",
-    version="0.1.0"
+    version="0.1.0",
+    lifespan=lifespan,
 )
 
 
@@ -128,20 +158,6 @@ app.add_exception_handler(
     exc_class_or_status_code=UnauthorizedException,
     handler=custom_exception_handler(),
 )
-
-
-# Add event handlers
-
-
-# on server start method
-@app.on_event("startup")
-async def startup_event():
-    logger.info("********** Starting the server **********")
-
-# on server stop method
-@app.on_event("shutdown")
-async def shutdown_event():
-    logger.info("********** Stopping the server **********")
 
 
 @app.get("/")
