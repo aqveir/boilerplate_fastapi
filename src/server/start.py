@@ -62,9 +62,10 @@ async def lifespan(app: FastAPI):
 
 # Create an instance of the FastAPI class
 app = FastAPI(
-    title="aQveir FastAPI Template",
-    description="aQveir FastAPI Template",
-    version="0.1.0",
+    title=config.APP_NAME,
+    description=config.APP_DESCRIPTION,
+    version=config.APP_VERSION,
+    debug=config.DEBUG,
     lifespan=lifespan,
 )
 
