@@ -30,8 +30,8 @@ async def logout(
     return await AuthController().logout(access_token, is_forced=False)
 
 
-@router.put("/logout/forced", dependencies=[Depends(AuthGaurd)])
-async def logout(
+@router.put("/logout/forced", dependencies=[Depends(AuthGaurd)], name="forced_logout")
+async def logout_forced(
     auth: AuthGaurd = Depends(AuthGaurd)
 ):
     access_token: str = auth.valid_token()
@@ -44,3 +44,20 @@ async def register(
     request: Request
 ):
     return await AuthController().register(payload, request)
+
+@router.post("/forgot-password")
+async def forgot_password(
+    payload: ForgotPasswordRequest,
+    request: Request
+):
+    return await AuthController().forgot_password(payload, request)
+
+
+@router.post("/change-password", dependencies=[Depends(AuthGaurd)])
+async def change_password(
+    payload: ChangePasswordRequest,
+    request: Request,
+    auth: AuthGaurd = Depends(AuthGaurd)
+):
+    access_token: str = auth.valid_token()
+    return await AuthController().change_password(payload, request)

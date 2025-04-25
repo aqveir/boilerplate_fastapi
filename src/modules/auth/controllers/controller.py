@@ -12,8 +12,7 @@ from ..services.service import AuthService
 
 # Include the project models
 from ..models.base import Auth
-from ..models.request import LoginRequest, RegisterRequest
-from ..models.response import AuthSuccessResponse
+from ..models.request import *
 from modules.base.models.response import JsonSuccessResponse
 
 
@@ -25,11 +24,12 @@ class AuthController(BaseController[Auth]):
 
     async def authenticate(self, credentials: LoginRequest, request: Request) -> JsonSuccessResponse:
         try:
+            # Get the ip address from the request
             ip_address = request.client.host
 
             response: BaseModel = await self.service.authenticate(credentials, ip_address)
 
-            # Get data from the service
+            # Send data from the service
             return JsonSuccessResponse(
                 content=response, 
                 message="Authentication successful"
@@ -45,7 +45,7 @@ class AuthController(BaseController[Auth]):
                 is_forced=is_forced
             )
 
-            # Get data from the service
+            # Send data from the service
             return JsonSuccessResponse(
                 content=response, 
                 message="Logout successful"
@@ -56,6 +56,7 @@ class AuthController(BaseController[Auth]):
 
     async def register(self, payload: RegisterRequest, request: Request) -> JsonSuccessResponse:
         try:
+            # Get the ip address from the request
             ip_address = request.client.host
 
             response: BaseModel = await self.service.register(
@@ -63,33 +64,43 @@ class AuthController(BaseController[Auth]):
                 ip_address=ip_address
             )
 
-            # Get data from the service
+            # Send data from the service
             return JsonSuccessResponse(content=response, message="Registration successful")
         except Exception as e:
             raise e
 
+ 
+    async def forgot_password(self, payload: ForgotPasswordRequest, request: Request) -> JsonSuccessResponse:
+        try:
+            # Get the ip address from the request
+            ip_address = request.client.host
 
-    async def refresh_token(self, refresh_token: str) -> JsonSuccessResponse:
-        data: dict[str, any] = await self.service.refresh_token(
-            token=refresh_token
-        )
+            # Send data from the service
+            return JsonSuccessResponse(
+                message="Forgot password successful",
+                content=payload
+            )
+        except Exception as e:
+            raise e
 
-        # Get data from the service
-        return AuthSuccessResponse(
-            message="Refresh token successful",
-            data=data
-        )
-    
-    async def forgot_password(self, email: str) -> JsonSuccessResponse:
-        data: dict[str, any] = await self.service.forgot_password(
-            email=email
-        )
 
-        # Get data from the service
-        return AuthSuccessResponse(
-            message="Forgot password successful",
-            data=data
-        )
+    async def change_password(self, payload: ChangePasswordRequest, request: Request) -> JsonSuccessResponse:
+        try:
+            # Get the ip address from the request
+            ip_address = request.client.host
+
+            # Send data from the service
+            return JsonSuccessResponse(
+                message="Change password successful",
+                content=payload
+            )
+        except Exception as e:
+            raise e
+
+
+
+
+
 
     async def reset_password(self, token: str, password: str) -> JsonSuccessResponse:
         data: dict[str, any] = await self.service.reset_password(
@@ -98,20 +109,20 @@ class AuthController(BaseController[Auth]):
         )
 
         # Get data from the service
-        return AuthSuccessResponse(
+        return JsonSuccessResponse(
             message="Reset password successful",
             data=data
         )
 
-    async def change_password(self, token: str, password: str) -> JsonSuccessResponse:
-        data: dict[str, any] = await self.service.change_password(
-            token=token,
-            password=password
+
+    async def refresh_token(self, refresh_token: str) -> JsonSuccessResponse:
+        data: dict[str, any] = await self.service.refresh_token(
+            token=refresh_token
         )
 
-        # Get data from the service
-        return AuthSuccessResponse(
-            message="Change password successful",
-            data=data
+        # Send data from the service
+        return JsonSuccessResponse(
+            message="Refresh token successful",
+            content=data
         )
-    
+   

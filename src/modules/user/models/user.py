@@ -62,7 +62,7 @@ class User(AppBaseModelWithHashAndAuditLog):
         # Check the username is for empty, email and phone number
         if '@' in self.username: # Email Validation
             ta_email = TypeAdapter(EmailStr)
-            if not ta_email.validate(self.username):
+            if not ta_email.validate_python(self.username):
                 raise ValueError('Invalid email')
         elif self.username.isdigit(): # Phone Number Validation
             if len(self.username) < 10 :

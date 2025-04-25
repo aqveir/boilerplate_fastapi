@@ -67,6 +67,9 @@ app = FastAPI(
     version=config.APP_VERSION,
     debug=config.DEBUG,
     lifespan=lifespan,
+    swagger_ui_parameters={
+        "syntaxHighlight": {"theme": "obsidian"}
+    }
 )
 
 
