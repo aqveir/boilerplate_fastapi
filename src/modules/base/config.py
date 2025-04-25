@@ -48,6 +48,18 @@ class Config(BaseSettings):
         "*.aqveir.in",
     ]
 
+    # Response Headers
+    RESPONSE_HEADERS: dict[str, str] = {
+        "X-Frame-Options": "DENY",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Permissions-Policy": "geolocation=(self), microphone=()",
+        "Cross-Origin-Embedder-Policy": "require-corp",
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Resource-Policy": "same-origin",
+    }
+
     SENTRY_SDN: str = ""
     CELERY_BROKER_URL: str = "amqp://user:bitnami@localhost:5672/"
     CELERY_BACKEND_URL: str = "redis://:password123@localhost:6379/0"

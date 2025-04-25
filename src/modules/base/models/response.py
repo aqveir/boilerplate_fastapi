@@ -5,6 +5,9 @@ from fastapi import status, Response
 from pydantic import SerializeAsAny, BaseModel
 from starlette.background import BackgroundTask
 
+# Imclude the project modules
+from ...base.config import config
+
 # Include the project models
 from .base import GenericResponse as GenericResponseModel, T
 from ..exceptions.base import GenericBaseException
@@ -139,6 +142,10 @@ class JsonSuccessResponse(BaseResponse):
             )
             content = model.model_dump(mode="json")
 
+        # Add custom headers to the response
+        if headers is None:
+            headers = {}
+        headers.update(config.RESPONSE_HEADERS)
 
         super().__init__(content, status_code, headers, media_type, background)
 

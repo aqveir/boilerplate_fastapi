@@ -10,6 +10,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 # Import the application module routes
 from modules.auth.routes.route import router as auth_router
+from modules.base.models.response import JsonSuccessResponse
 from modules.user.routes.route import router as user_router
 
 # Import the project exception handler
@@ -67,6 +68,7 @@ app = FastAPI(
     version=config.APP_VERSION,
     debug=config.DEBUG,
     lifespan=lifespan,
+    default_response_class=JsonSuccessResponse,
     swagger_ui_parameters={
         "syntaxHighlight": {"theme": "obsidian"}
     }
