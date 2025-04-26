@@ -1,3 +1,4 @@
+""" Import necessary modules """
 from enum import Enum
 
 # Define the Enum
