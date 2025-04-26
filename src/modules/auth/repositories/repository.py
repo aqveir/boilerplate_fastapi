@@ -12,7 +12,10 @@ class AuthRepository():
         #super().__init__(Auth)
         pass
 
-    async def authenticate_user(self, credentials: LoginRequest) -> User:
+    async def authenticate_user(
+            self,
+            credentials: LoginRequest,
+            ip_address: str|None = None) -> User:
         return User(
             id=1,
             username=credentials.username,
@@ -22,7 +25,8 @@ class AuthRepository():
                 legal_name="My Organization Inc"
             )
         )
-    
+
+
     async def show(self, hash: str):
         return f'UserRepository show {hash}'
 
