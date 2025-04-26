@@ -14,6 +14,8 @@ class Config(BaseSettings):
     APP_DESCRIPTION: str = "FastAPI application"
     APP_HOST: str = "0.0.0.0"
     APP_PORT: int = 8080
+    APP_DOMAIN: str = "localhost"
+    APP_URL: str = "http://localhost:8080"
 
     # Database settings
     WRITER_DB_URL: str = "mysql+aiomysql://fastapi:fastapi@localhost:3306/fastapi"
@@ -53,11 +55,25 @@ class Config(BaseSettings):
         "X-Frame-Options": "DENY",
         "X-XSS-Protection": "1; mode=block",
         "X-Content-Type-Options": "nosniff",
+        "X-Permitted-Cross-Domain-Policies": "none",
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "Permissions-Policy": "geolocation=(self), microphone=()",
+        "Cache-Control": "no-store, max-age=0",
+        "Clear-Site-Data": '"*"',
         "Cross-Origin-Embedder-Policy": "require-corp",
         "Cross-Origin-Opener-Policy": "same-origin",
         "Cross-Origin-Resource-Policy": "same-origin",
+        "Content-Security-Policy": (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; "
+            "font-src 'self' data:; "
+            "frame-ancestors 'self' 'domain.com'"
+            "connect-src 'self' https://api.example.com;"
+        ),
+        "Pragma": "no-cache",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
     }
 
     SENTRY_SDN: str = ""
