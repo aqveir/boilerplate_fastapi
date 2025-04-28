@@ -47,7 +47,7 @@ class AuthController(BaseController[Auth]):
 
             # Send data from the service
             return JsonSuccessResponse(
-                content=response, 
+                content=response,
                 message="Authentication successful"
             )
         except Exception as e:

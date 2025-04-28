@@ -1,6 +1,7 @@
 """ Import the required modules """
 import json
 from typing import List
+from pydantic import TypeAdapter
 
 # Include the project models
 from ..models.base import Auth
@@ -22,6 +23,7 @@ from ..events.login_event import LoginEvent
 from modules.base.exceptions.base import *
 
 class AuthService:
+    """ AuthService class to handle authentication related operations. """
     def __init__(self):
         self.repository = AuthRepository()
         self.claim_service = ClaimService()
@@ -62,7 +64,6 @@ class AuthService:
             raise e
 
 
-
     async def logout(self, token: str, is_forced: bool = False) -> bool:
         """ Logout the user
 
@@ -77,8 +78,22 @@ class AuthService:
             if not claim:
                 raise InvalidTokenException()
 
-            # Delete the claim from storage
-            self.claim_service.delete(value=token)
+            if (is_forced is True) and (claim.token is not None):
+                refresh_token = claim.token.refresh_token
+                if refresh_token:
+                    # Get all the claims for the user from refresh token
+                    claims: List[AuthClaim] = self.claim_service.get_all(
+                        {
+                            refresh_token: refresh_token
+                        }
+                    )
+                    if claims:
+                        # Delete all the claims for the user
+                        for claim in claims:
+                            self.claim_service.delete(value=claim.token)
+            else:
+                # Delete the claim from storage
+                self.claim_service.delete(value=token)
 
             # Raise event for successful logout
 
@@ -173,7 +188,7 @@ class AuthService:
             return payload
         except Exception as e:
             raise e
-        
+
 
     async def refresh_token(
             self,
@@ -191,8 +206,10 @@ class AuthService:
             claim = self.claim_service.get(value=token)
             if not claim:
                 raise InvalidTokenException()
+            
+            print(f"Claim: {claim}")
 
-            authenticated_user: User = claim.user
+            authenticated_user: User = TypeAdapter(User).validate_python(claim.user, experimental_allow_partial=True)
             if not authenticated_user:
                 raise InvalidTokenException()
 

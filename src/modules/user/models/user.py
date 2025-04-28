@@ -17,16 +17,30 @@ class User(AppBaseModelWithHashAndAuditLog):
     User model for the application.
     """
     title: str = Field(default=None, description="Title", exclude=True)
-    first_name: str = Field(default=None, description="First Name", exclude=True, max_length=64, examples=["John"])
-    middle_name: str = Field(default=None, description="Middle Name", exclude=True)
-    last_name: str = Field(default=None, description="Last Name", exclude=True, max_length=64, examples=["Doe"])
+    first_name: str = Field(default=None, description="First Name",
+            exclude=True, max_length=64, examples=["John"]
+        )
+    middle_name: str = Field(default=None, description="Middle Name",
+            exclude=True
+        )
+    last_name: str = Field(default=None, description="Last Name",
+            exclude=True, max_length=64, examples=["Doe"]
+        )
 
     # Foreign Key to References
-    organization: Organization = Field(default=None, description="Organization")
+    organization: Organization = Field(default=None,
+            description="Organization"
+        )
 
-    date_of_birth: date = Field(default=None, description="Date of Birth", exclude=True)
+    date_of_birth: date = Field(default=None,
+            description="Date of Birth",
+            exclude=True
+        )
 
-    username: EmailStr | str = Field(..., description="Username", max_length=64, min_length=8, examples=["john@someone,com"])
+    username: EmailStr | str = Field(...,
+            description="Username", max_length=64, min_length=8, 
+            examples=["john@someone,com"]
+        )
 
     is_verified: int = Field(default=0, description="Is Verified", exclude=True)
 
@@ -38,6 +52,10 @@ class User(AppBaseModelWithHashAndAuditLog):
     @computed_field(description="Full name")
     @property
     def full_name(self) -> str:
+        """
+        Get the full name of the user.
+        The full name is a combination of the title, first name, middle name, and last name.
+        """
         return_value: str = ""
         if self.title:
             return_value += f"{self.title} "
@@ -59,12 +77,18 @@ class User(AppBaseModelWithHashAndAuditLog):
 
     @model_validator(mode='after')
     def check_username(self) -> Self:
+        """
+        Validate the username field.
+        The username can be an email or a phone number.
+        If the username is an email, it should be a valid email address.
+        If the username is a phone number, it should be a valid phone number.
+        """
         # Check the username is for empty, email and phone number
         if '@' in self.username: # Email Validation
             ta_email = TypeAdapter(EmailStr)
             if not ta_email.validate_python(self.username):
                 raise ValueError('Invalid email')
-        elif self.username.isdigit(): # Phone Number Validation
+        elif str(self.username).isdigit(): # Phone Number Validation
             if len(self.username) < 10 :
                 raise ValueError('Invalid phone number')
         else:
@@ -73,7 +97,7 @@ class User(AppBaseModelWithHashAndAuditLog):
 
 
     model_config = ConfigDict(
-        extra='forbid', 
-        populate_by_name=True, 
+        extra='allow',
+        populate_by_name=True,
         from_attributes=True
     )

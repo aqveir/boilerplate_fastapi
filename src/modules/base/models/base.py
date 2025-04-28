@@ -11,7 +11,7 @@ class ApplicationBaseModel(BaseModel):
     """
     Base model for the application.
     """
-    id: int = Field(..., description="UID", exclude=True)
+    id: int = Field(..., description="UID", ge=1, examples=[1])
 
 
 class AppBaseModelWithHash(ApplicationBaseModel):

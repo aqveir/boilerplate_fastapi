@@ -4,6 +4,11 @@ from .token import Token as AuthToken
 
 
 class AuthClaim(BaseModel):
+    """
+    AuthClaim model for the application.
+    This model is used to store the authentication claim for a user.
+    It contains the token, user data, privileges, settings, and unread notifications.
+    """
     token: AuthToken | None = None
     user: dict = {}
     privileges: list = []
@@ -16,7 +21,7 @@ class AuthClaim(BaseModel):
         if self.token is None:
             return None
         return self.token.access_token
-    
+
 
     @computed_field(description="Claim TTL")
     @property

@@ -91,3 +91,18 @@ async def change_password(
     Change the password of the user with the given payload.
     """
     return await AuthController().change_password(payload, request)
+
+
+@router.get("/token/refresh",
+        dependencies=[Depends(AuthGaurd)],
+        name="refresh_token"
+    )
+async def refresh_token(
+        request: Request,
+        auth: AuthGaurd = Depends(AuthGaurd)
+    ) -> Any:
+    """
+    Refresh the access token of the user with the given refresh token.
+    """
+    access_token: str = auth.valid_token()
+    return await AuthController().refresh_token(access_token, request)

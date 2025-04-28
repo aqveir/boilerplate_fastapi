@@ -1,7 +1,8 @@
 """ Import the required modules """
 import typing
+from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 
 from modules.base.models.auth.token import Token
 from modules.base.models.auth.claim import AuthClaim
@@ -52,15 +53,15 @@ class ClaimService:
             # Validate the payload
             if not isinstance(payload, dict):
                 raise InvalidTokenException(error_msg_code="error_code_invalid_payload")
-            
+
             # Generate a token
             token: Token = TokenHelper.encode(payload, expire_period=config.JWT_EXPIRES)
             if not token:
                 raise InvalidTokenException(error_msg_code="error_code_token_generation")
 
             if isinstance(user, BaseModel):
-                user = user.model_dump(mode='json')
-            
+                user = user.model_dump(mode='json', exclude_none=True)
+
             # Create a claim with the token and user data
             claim: AuthClaim = AuthClaim(token=token, user=user)
             if not claim:
@@ -94,10 +95,40 @@ class ClaimService:
         The value is usually the claim token. If the claim is found, it 
         returns the claim. If the claim is not found, it raises an exception.
         """
-        return self.storage_service.get_data(
-            value=value,
-            key=config.CLAIM_TABLE_KEY
-        )
+        try:
+            # Get the claim from storage
+            claim = self.storage_service.get_data(
+                value=value,
+                key=config.CLAIM_TABLE_KEY
+            )
+            if not claim:
+                raise InvalidTokenException(error_msg_code="error_code_claim_not_found")
+
+            return TypeAdapter(AuthClaim).validate_python(claim)
+        except Exception as e:
+            raise e
+
+
+    def get_all(self, query: dict) -> List[AuthClaim]:
+        """ Get all the claims from storage
+        Get the claims from storage using the given query/identifier
+
+        The values are usually the claim tokens. If the claims are found, it 
+        returns the list of the claims. If the claim is not found, it 
+        raises an exception.
+        """
+        try:
+            # Get the claim from storage
+            claims = self.storage_service.query_data(
+                query=query,
+                key=config.CLAIM_TABLE_KEY
+            )
+            if not claims:
+                raise InvalidTokenException(error_msg_code="error_code_claim_not_found")
+
+            return TypeAdapter(List[AuthClaim]).validate_python(claims)
+        except Exception as e:
+            raise e
 
 
     def store(self, claim: AuthClaim) -> bool:
