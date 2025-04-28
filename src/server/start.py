@@ -1,5 +1,4 @@
 import logging
-import uvicorn
 
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
@@ -28,12 +27,12 @@ from modules.base.config import config
 # https://docs.python.org/3/library/logging.config.html#logging.config.fileConfig
 logging.config.fileConfig('config/logging.conf', disable_existing_loggers=False)
 
-# get root logger
+# Get root logger
 logger = logging.getLogger(__name__)  # the __name__ resolve to "main" since we are at the root of the project. 
                                       # This will get the root logger since no logger in the configuration has this name.
 
 
-""" Lifespan Event Handler """
+# Lifespan Event Handler
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan event handler for the FastAPI app.
@@ -55,7 +54,7 @@ async def lifespan(app: FastAPI):
         logger.info("********** Stopping the server **********")
 
         # Cleanup log event handlers
-        # cleanup_log_event_handlers()        
+        # cleanup_log_event_handlers()
 
         # Cleanup resources here if needed
         logger.info("********** Server Stopped **********")
