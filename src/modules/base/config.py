@@ -26,9 +26,20 @@ class Config(BaseSettings):
     AWS_SECRET_ACCESS_KEY: str = "__aws_secret_access_key__"
     AWS_REGION: str = "__aws_region__"
 
+    # AWS S3 settings
     AWS_S3_ENDPOINT_URL: str = "https://s3.amazonaws.com"
     AWS_S3_REGION_NAME: str = "us-east-1"
     AWS_S3_BUCKET: str = ""
+
+    # AWS Cognito settings
+    AWS_COGNITO_REGION: str = "__aws_cognito_region__"
+    AWS_COGNITO_USER_POOL_ID: str = "__aws_cognito_user_pool_id__"
+    AWS_COGNITO_CLIENT_ID: str = "__aws_cognito_client_id__"
+    AWS_COGNITO_CLIENT_SECRET: str = "__aws_cognito_client_secret__"
+    AWS_COGNITO_DOMAIN: str = "__aws_cognito_domain__"
+    AWS_COGNITO_REDIRECT_URL: str = "__aws_cognito_redirect_url__"
+    AWS_COGNITO_LOGOUT_URL: str = "__aws_cognito_logout_url__"
+    AWS_COGNITO_USER_POOL_ARN: str = "__aws_cognito_user_pool_arn__"
 
     # JWT settings
     JWT_SECRET_KEY: str = "__jwt_secret_key__"
