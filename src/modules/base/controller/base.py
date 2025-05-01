@@ -1,9 +1,9 @@
-from typing import Any, Generic, Type, TypeVar
+""" Import the required modules """
 
-from ..db import Base
-
-ModelType = TypeVar("ModelType", bound=Base)
-
-class BaseController(Generic[ModelType]):
-    def __init__(self, model: Type[ModelType]):
-        self.model = model
+class BaseController():
+    """
+    BaseController class to handle common functionality for all 
+    controllers.
+    """
+    def __init__(self):
+        pass

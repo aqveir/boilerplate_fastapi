@@ -5,9 +5,9 @@ from ..models.user import User
 
 from modules.base.controller.base import BaseController
 
-class UserController(BaseController[User]):
+class UserController(BaseController):
     def __init__(self):
-        super().__init__(model=User)
+        super().__init__()
         self.service = UserService()
 
     async def index(self):

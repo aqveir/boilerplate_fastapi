@@ -10,7 +10,6 @@ from modules.base.controller.base import BaseController
 from ..services.service import AuthService
 
 # Include the project models
-from ..models.base import Auth
 from ..models.request import (
     LoginRequest,
     RegisterRequest,
@@ -20,13 +19,13 @@ from ..models.request import (
 )
 
 
-class AuthController(BaseController[Auth]):
+class AuthController(BaseController):
     """
     AuthController class to handle authentication related requests.
     """
 
     def __init__(self):
-        super().__init__(model=Auth)
+        super().__init__()
         self.service = AuthService()
 
 

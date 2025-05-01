@@ -6,25 +6,25 @@ from pydantic import SerializeAsAny, BaseModel
 from starlette.background import BackgroundTask
 
 # Imclude the project modules
-from ...base.config import config
+from modules.base.config import config
 
 # Include the project models
 from .base import GenericResponse as GenericResponseModel, T
 from ..exceptions.base import GenericBaseException
 
 
-""" Generic Success Response Model
+# """ Generic Success Response Model
 
-This is the pydantic model for the success response.
+# This is the pydantic model for the success response.
 
-It contains the following fields:
-- status_code: The HTTP status code of the response.
-- message: The success message of the response.
-- success: A boolean indicating whether the request was successful or not.
-- data: The data of the response.
-- errors: The errors of the response.
-- metadata: The metadata of the response.
-"""
+# It contains the following fields:
+# - status_code: The HTTP status code of the response.
+# - message: The success message of the response.
+# - success: A boolean indicating whether the request was successful or not.
+# - data: The data of the response.
+# - errors: The errors of the response.
+# - metadata: The metadata of the response.
+# """
 class SuccessModel(GenericResponseModel, Generic[T]):
     """
     Base model for all success response models.

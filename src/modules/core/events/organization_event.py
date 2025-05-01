@@ -1,12 +1,12 @@
 """ Import the required modules """
 from modules.base.events.base import BaseEvent
 
-class LoginEvent(BaseEvent):
+class OrganizationCreateEvent(BaseEvent):
     """
-    Event triggered when a user logs in.
+    Event triggered when an organization is created.
     """
 
-    event_name: str = "login_event"
+    event_name: str = "organization_create_event"
 
     # def __init__(self):
     #     super().__init__()

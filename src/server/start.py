@@ -8,8 +8,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 # Import the application module routes
-from modules.auth.routes.route import router as auth_router
 from modules.base.models.response import JsonSuccessResponse
+from modules.auth.routes.route import router as auth_router
+from modules.core.routes.organization_router import router as organization_router
+from modules.core.routes.lookup_router import router as lookup_router
 from modules.user.routes.route import router as user_router
 
 # Import the project exception handler
@@ -115,7 +117,7 @@ middleware.
 allowed_hosts: list[str] = config.ALLOWED_DOMAINS
 
 app.add_middleware(
-    TrustedHostMiddleware, 
+    TrustedHostMiddleware,
     allowed_hosts=allowed_hosts
 )
 
@@ -128,6 +130,8 @@ The include_router function takes the router as an argument
 and adds the routes to the app.
 """
 app.include_router(auth_router)
+app.include_router(organization_router)
+app.include_router(lookup_router)
 app.include_router(user_router)
 
 

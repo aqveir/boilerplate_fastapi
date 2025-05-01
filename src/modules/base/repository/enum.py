@@ -1,7 +1,9 @@
+""" Import the required modules """
 from pydantic import BaseModel
 
 
 class SynchronizeSessionEnum(BaseModel):
-    FETCH = "fetch"
-    EVALUATE = "evaluate"
-    FALSE = False
+    """ Synchronize session enum class """
+    FETCH: str = "fetch"
+    EVALUATE: str = "evaluate"
+    FALSE: bool = False

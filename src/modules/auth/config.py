@@ -1,8 +1,8 @@
-import os
-from typing import List
-
+""" Import the required modules """
 from pydantic_settings import BaseSettings
 
 
 class AuthConfig(BaseSettings):
-    pass
+    """
+    AuthConfig class to handle authentication related configurations.
+    """
