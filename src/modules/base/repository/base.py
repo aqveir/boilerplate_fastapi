@@ -1,9 +1,10 @@
 """ Import the required modules """
 from typing import TypeVar, Type, Generic
 
+from pydantic import BaseModel
 from sqlalchemy import delete, select, update
 
-from modules.base.db.session import Base, session
+from modules.base.db.session import session
 from modules.base.repository.enum import SynchronizeSessionEnum
 
 T = TypeVar("T")
@@ -111,7 +112,32 @@ class BaseRepository(Generic[T]):
         )
         await session.execute(query)
 
+
     ### Save the table data
-    async def save(self, model: T) -> T:
-        saved = await session.add(model)
-        return saved
+    async def save(
+            self, model: T,
+            ip_address: str|None = None,
+            current_user: BaseModel|None=None
+        ) -> T:
+        """
+        Save the data to the table
+            :param model: table data to save
+            :return: saved table data
+        """
+        try:
+            # add the ip address to the model
+            if hasattr(model, "ip_address"):
+                model.ip_address = ip_address
+                
+            # add the current user to the model
+            if hasattr(model, "created_by") and current_user:
+                model.created_by = current_user.id
+
+            saved = await session.add(model)
+            return saved
+        except Exception as e:
+            raise e
+        finally:
+            await session.commit()
+            await session.refresh(model)
+            await session.close()

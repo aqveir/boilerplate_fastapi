@@ -9,16 +9,6 @@ from modules.base.controller.base import BaseController
 # Include the project services
 from ..services.organization_service import OrganizationService
 
-# Include the project models
-# from ..models.base import Auth
-# from ..models.request import (
-#     LoginRequest,
-#     RegisterRequest,
-#     ForgotPasswordRequest,
-#     ChangePasswordRequest,
-#     ResetPasswordRequest
-# )
-
 
 class OrganizationController(BaseController):
     """
@@ -43,12 +33,11 @@ class OrganizationController(BaseController):
             # Get the ip address from the request
             ip_address = request.client.host
 
-            response: BaseModel = await self.service.index(ip_address)
+            response: BaseModel = await self.service.list(current_user, ip_address)
 
             # Send data from the service
             return JsonSuccessResponse(
-                content=response,
-                message="Authentication successful"
+                content=response
             )
         except Exception as e:
             raise e
@@ -60,13 +49,13 @@ class OrganizationController(BaseController):
             request: Request,
             current_user: BaseModel) -> JsonSuccessResponse:
         """
-        Get the organization with the given hash.
+        Get the organization with the given uid.
         """
         try:
             # Get the ip address from the request
             ip_address = request.client.host
 
-            response: BaseModel = await self.service.show(
+            response: BaseModel = await self.service.get(
                 uid=uid,
                 ip_address=ip_address
             )
@@ -147,13 +136,13 @@ class OrganizationController(BaseController):
 
             response: BaseModel = await self.service.delete(
                 uid=uid,
-                ip_address=ip_address
+                ip_address=ip_address,
+                current_user=current_user
             )
 
             # Send data from the service
             return JsonSuccessResponse(
-                content=response, 
-                message="Logout successful"
+                content=response
             )
         except Exception as e:
             raise e

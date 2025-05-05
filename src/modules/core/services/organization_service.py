@@ -1,5 +1,4 @@
 """ Import the required modules """
-import json
 from typing import List
 from pydantic import TypeAdapter, BaseModel
 
@@ -8,7 +7,6 @@ from modules.core.models.organization.request import (
     OrganizationCreateRequest,
     OrganizationUpdateRequest
 )
-from modules.user.models.user import User
 from modules.core.models.organization.organization import Organization
 
 # include the project services
@@ -18,37 +16,44 @@ from modules.base.services.auth.claim_service import ClaimService
 # Include the module repositories
 from modules.core.repositories.organization_repository import OrganizationRepository
 
+# Include the module exceptions
+from modules.base.exceptions.base import (
+    EntityNotFoundException,
+    EntityNotSavedException
+)
+
 # Include the module events
 from ..events.organization_event import (
     OrganizationCreateEvent,
+    OrganizationUpdateEvent,
+    OrganizationDeleteEvent
 )
 
-# Include the module exceptions
-from modules.base.exceptions.base import *
 
-class OrganizationService:
+class OrganizationService(BaseService):
     """ OrganizationService class to handle organization related operations. """
     def __init__(self):
         self.repository = OrganizationRepository
         self.claim_service = ClaimService()
+        super().__init__(self.repository)
 
 
     async def create(
-            self, payload: BaseModel, ip_address: str,
+            self, payload: OrganizationCreateRequest, ip_address: str,
             current_user: BaseModel) -> Organization:
         """ Create a new object """
         try :
             # Validate the credentials
-            model: BaseModel = await self.repository.save(
-                payload, ip_address
+            model: Organization = await self.repository.save(
+                payload, ip_address, current_user
             )
             if not model:
-                raise AuthenticationException()
-            else:
-                # Set update the user status
+                raise EntityNotSavedException(
+                    message="Unable to create the organization"
+                )
 
-                # Raise event on successful creation
-                OrganizationCreateEvent().raise_event(model)
+            # Raise event on successful creation
+            OrganizationCreateEvent().raise_event(model)
 
             return model
         except Exception as e:
@@ -56,16 +61,21 @@ class OrganizationService:
 
 
     async def update(
-            self, uid: str, payload: BaseModel,
+            self, uid: str, payload: OrganizationUpdateRequest,
             ip_address: str, current_user: BaseModel) -> Organization:
         """ Update the model """
         try:
             # Get the claim from storage
-            model: BaseModel = await self.repository.update_by_hash(
-                uid, payload, ip_address
+            model: Organization = await self.repository.update_by_hash(
+                uid, payload, ip_address, current_user
             )
+            if not model:
+                raise EntityNotSavedException(
+                    message="Unable to update the organization"
+                )
 
             # Raise event on successful update
+            OrganizationUpdateEvent().raise_event(model)
 
             return model
         except Exception as e:
@@ -77,18 +87,18 @@ class OrganizationService:
             current_user: BaseModel) -> Organization:
         """ Delete the model """
         try:
-            # Validate the payload
-            # user: User = await self.repository.register_user(payload)
+            model: Organization = await self.repository.delete_by_hash(
+                uid, ip_address, current_user
+            )
+            if not model:
+                raise EntityNotFoundException(
+                    message="Unable to delete the organization"
+                )
 
-            # Create and store the claim
-            # claim: AuthClaim = self.claim_service.create(
-            #     payload={
-            #         "user_id": user.id
-            #     }, 
-            #     user=user.model_dump(mode='json')
-            # )
+            # Raise event on successful deletion
+            OrganizationDeleteEvent().raise_event(model)
 
-            return current_user
+            return model
         except Exception as e:
             raise e
 
@@ -110,14 +120,21 @@ class OrganizationService:
 
     async def get(
             self,
-            payload: BaseModel,
+            uid: str,
             ip_address: str
         ) -> Organization:
         """ Get the object """
         try:
             # Validate the payload
-            # user: User = await self.repository.change_password(payload)
+            response = await self.repository.get_by_hash(uid)
+            if not response:
+                raise EntityNotFoundException(
+                    message="Unable to get the organization from IP address = " + ip_address
+                )
 
-            return payload
+            # Validate the response
+            model: Organization = TypeAdapter(Organization).validate_python(response)
+
+            return model
         except Exception as e:
             raise e

@@ -1,4 +1,7 @@
-from datetime import datetime
+""" Import the required modules """
+import dataclasses
+import datetime
+from typing import Optional
 from uuid import UUID
 
 # Importing necessary modules from SQLAlchemy
@@ -8,14 +11,21 @@ from sqlalchemy import (
     DateTime,
     Boolean
 )
+from sqlalchemy.sql import func
 from sqlalchemy.orm import (DeclarativeBase, Mapped, mapped_column)
+from sqlalchemy.ext.declarative import DeferredReflection
 
 
+@dataclasses.dataclass
 class BaseDB(DeclarativeBase):
+    """
+    Base class for all models.
+    """
     pass
 
 
-class BaseSchema(BaseDB):
+@dataclasses.dataclass
+class BaseReflectionSchema(DeferredReflection):
     """
     Base schema for all models.
     This schema defines the structure of the base data.
@@ -23,10 +33,14 @@ class BaseSchema(BaseDB):
     __abstract__ = True
 
     # Primary key and unique identifiers
-    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True, autoincrement=True, sort_order=-10)
+    id: Mapped[int] = mapped_column(
+        BigInteger, primary_key=True, index=True,
+        autoincrement=True, sort_order=-10
+    )
 
 
-class BaseSchema_AuditLog(BaseSchema):
+@dataclasses.dataclass
+class BaseSchemaAuditLog(BaseReflectionSchema):
     """
     Base schema for all models requiring audit logging.
     This schema defines the structure of the base data.
@@ -34,14 +48,28 @@ class BaseSchema_AuditLog(BaseSchema):
     __abstract__ = True
 
     # Audit fields
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=DateTime.utcnow(), sort_order=100)
-    created_by: Mapped[int] = mapped_column(BigInteger, default=0, sort_order=101)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, onupdate=DateTime.utcnow(), sort_order=102)
-    updated_by: Mapped[int] = mapped_column(BigInteger, nullable=True, sort_order=103)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=1, sort_order=110)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.UTC_TIMESTAMP(),
+        sort_order=100
+    )
+    created_by: Mapped[int] = mapped_column(
+        BigInteger, default=0, sort_order=101
+    )
+    updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True,
+        onupdate=func.UTC_TIMESTAMP(), sort_order=102
+    )
+    updated_by: Mapped[Optional[int]] = mapped_column(
+        BigInteger, nullable=True, sort_order=103
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, default=1, sort_order=110
+    )
 
 
-class BaseSchema_UUID(BaseSchema):
+@dataclasses.dataclass
+class BaseSchemaUUID(BaseReflectionSchema):
     """
     Base schema for all models requiring UUID and audit logging.
     This schema defines the structure of the base data.
@@ -49,10 +77,14 @@ class BaseSchema_UUID(BaseSchema):
     __abstract__ = True
 
     # Unique identifiers
-    hash: Mapped[UUID] = mapped_column(Uuid, unique=True, index=True, sort_order=-9)
+    hash: Mapped[UUID] = mapped_column(
+        Uuid, unique=True, index=True,
+        sort_order=-9
+    )
 
 
-class BaseSchema_AuditLog_DeleteLog(BaseSchema_AuditLog):
+@dataclasses.dataclass
+class BaseSchemaAuditLogDeleteLog(BaseSchemaAuditLog):
     """
     Base schema for all models.
     This schema defines the structure of the base data.
@@ -60,9 +92,20 @@ class BaseSchema_AuditLog_DeleteLog(BaseSchema_AuditLog):
     __abstract__ = True
 
     # Audit fields (Delete log)
-    deleted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True, sort_order=104)
-    deleted_by: Mapped[int] = mapped_column(BigInteger, nullable=True, sort_order=105)
+    deleted_at: Mapped[Optional[datetime.datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True,
+        sort_order=104
+    )
+    deleted_by: Mapped[Optional[int]] = mapped_column(
+        BigInteger, nullable=True,
+        sort_order=105
+    )
 
 
-class BaseSchema_UUID_AuditLog_DeleteLog(BaseSchema_UUID, BaseSchema_AuditLog_DeleteLog):
+@dataclasses.dataclass
+class BaseSchemaUUIDAuditLogDeleteLog(BaseSchemaUUID, BaseSchemaAuditLogDeleteLog):
+    """
+    Base schema for all models requiring UUID and audit logging.
+    This schema defines the structure of the base data.
+    """
     pass

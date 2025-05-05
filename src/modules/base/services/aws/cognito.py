@@ -16,7 +16,7 @@ client = boto3.client(
 )
 
 
-class Cognito():
+class CognitoService():
     """
     Memcached cache backend implementation using AWS ElastiCache.
 
@@ -62,6 +62,9 @@ class Cognito():
 
             if self.client_secret is not None:
                 payload["AuthParameters"]["SECRET_HASH"] = self._secret_hash(user_name)
+
+            # Log the payload for debugging purposes
+            logger.debug("Payload: %s", payload)
 
             # Start the sign-in process
             response = self.client.admin_initiate_auth(**payload)

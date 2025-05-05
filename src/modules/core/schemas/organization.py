@@ -1,5 +1,7 @@
+""" Import the required modules """
+import dataclasses
 import datetime
-from typing import List
+from typing import List, Optional
 
 # Importing necessary modules from SQLAlchemy
 from sqlalchemy import (
@@ -7,19 +9,23 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     DateTime,
-    Boolean,
     String
 )
 from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 
 # Import Base Schema classes & models
-from modules.base.db.base import *
-from .lookup import LookUp
-from .organization_configuration import Organization_Configuration
+from modules.base.db.base import (
+    BaseDB,
+    BaseSchemaUUIDAuditLogDeleteLog
+)
+from modules.core.schemas.lookup import LookUpSchema as LookUp
+from modules.core.schemas.organization_configuration import (
+    OrganizationConfigurationSchema as OrganizationConfiguration
+)
 
-# Importing 
 
-class Organization(BaseSchema_UUID_AuditLog_DeleteLog):
+@dataclasses.dataclass
+class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     """
     Organization model for the application.
     This model defines the structure of the organization data.
@@ -37,22 +43,30 @@ class Organization(BaseSchema_UUID_AuditLog_DeleteLog):
     type_id: Mapped[int] = mapped_column(ForeignKey("lookup.id"))
 
     # Entity fields
-    display_name: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
-    legal_name: Mapped[str] = mapped_column(String(128), nullable=True)
-    description: Mapped[str] = mapped_column(String(256), nullable=True)
-    logo: Mapped[str] = mapped_column(String(256), nullable=True)
+    display_name: Mapped[str] = mapped_column(
+        String(128), nullable=False, index=True
+    )
+    legal_name: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True
+    )
+    description: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    logo: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
 
     # Domain fields
-    subdomain: Mapped[str] = mapped_column(String(128), nullable=True, index=True)
-    custom_domain: Mapped[str] = mapped_column(String(128), nullable=True, index=True)
+    subdomain: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True, index=True
+    )
+    custom_domain: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True, index=True
+    )
 
     # Address fields
-    address: Mapped[str] = mapped_column(String(256), nullable=True)
-    locality: Mapped[str] = mapped_column(String(256), nullable=True)
-    city: Mapped[str] = mapped_column(String(128), nullable=True)
-    state_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    country_id: Mapped[int] = mapped_column(Integer, nullable=True)
-    zipcode: Mapped[str] = mapped_column(String(32), nullable=True)
+    address: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    locality: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    city: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    state_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    country_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    zipcode: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
     latitude: Mapped[float] = mapped_column(Float, nullable=True)
     longitude: Mapped[float] = mapped_column(Float, nullable=True)
 
@@ -61,15 +75,28 @@ class Organization(BaseSchema_UUID_AuditLog_DeleteLog):
     email: Mapped[str] = mapped_column(String(128), nullable=True, index=True)
 
     # Extra fields
-    search_tags: Mapped[str] = mapped_column(String(256), nullable=True, index=True)
-    website: Mapped[str] = mapped_column(String(256), nullable=True)
+    search_tags: Mapped[Optional[str]] = mapped_column(
+        String(256), nullable=True, index=True
+    )
+    website: Mapped[Optional[str]] = mapped_column(
+        String(256), nullable=True
+    )
 
     # External Payment fields (e.g. Stripe)
-    payment_provider: Mapped[str] = mapped_column(String(128), nullable=True, index=True)
-    payment_provider_customer_id: Mapped[str] = mapped_column(String(128), nullable=True, index=True)
-    trial_ends_at: Mapped[datetime] = mapped_column(DateTime, nullable=True, index=True)
+    payment_provider: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True, index=True
+    )
+    payment_provider_customer_id: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True, index=True
+    )
+    trial_ends_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime, nullable=True, index=True
+    )
 
     # Relationships
-    type: Mapped["LookUp"] = relationship("LookUp", back_populates="organizations")
-    configurations: Mapped[List["Organization_Configuration"]] = relationship(back_populates="organizations")
-    
+    type: Mapped["LookUp"] = relationship(
+        "LookUp", back_populates="organizations"
+    )
+    configurations: Mapped[List["OrganizationConfiguration"]] = relationship(
+        back_populates="organizations"
+    )

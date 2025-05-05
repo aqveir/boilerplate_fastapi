@@ -1,17 +1,17 @@
 """ Import the required modules """
-
 from modules.base.repository.base import BaseRepository
 
-from ..models.organization.organization import Organization
+# Import the schema and model classes
+from modules.core.schemas.organization import OrganizationSchema
 
 
-class OrganizationRepository(BaseRepository[Organization]):
+class OrganizationRepository(BaseRepository[OrganizationSchema]):
     """
     OrganizationRepository class to handle organization related database operations.
     This class provides methods to perform CRUD operations on the database.
     It uses SQLAlchemy to interact with the database.
     """
-    def __init__(self, model: Organization):
+    def __init__(self, model: OrganizationSchema):
         self.model = model
         self.session = None
         super().__init__(model)

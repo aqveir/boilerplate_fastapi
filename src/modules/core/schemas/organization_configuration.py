@@ -1,4 +1,6 @@
-# Importing necessary modules from SQLAlchemy
+""" Import the required modules """
+import dataclasses
+from typing import Optional
 from sqlalchemy import (
     ForeignKey,
     Boolean,
@@ -7,10 +9,18 @@ from sqlalchemy import (
 from sqlalchemy.orm import (Mapped, mapped_column, relationship)
 
 # Import Base Schema classes & models
-from modules.base.db.base import *
-from .organization import Organization
+from modules.base.db.base import (
+    BaseDB,
+    BaseSchemaAuditLog
+)
+#from modules.core.schemas.lookup import LookUp
+from modules.core.schemas.organization import (
+    OrganizationSchema as Organization
+)
 
-class Organization_Configuration(BaseSchema_AuditLog):
+
+@dataclasses.dataclass
+class OrganizationConfigurationSchema(BaseSchemaAuditLog, BaseDB):
     """
     Organization Configuration model for the application.
     This model defines the structure of the organization configuration data.
@@ -23,16 +33,20 @@ class Organization_Configuration(BaseSchema_AuditLog):
     __tablename__ = "organization_configurations"
 
     # Foreign fields
-    organization_id: Mapped[int] = mapped_column(ForeignKey("organization.id"))
+    organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id"))
 
     # Entity fields
     data_type: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     data_key: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
     data_value: Mapped[str] = mapped_column(String(8000), nullable=False, index=True)
-    display_name: Mapped[str] = mapped_column(String(128), nullable=True)
-    
+    display_name: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True
+    )
+
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
     is_secure: Mapped[bool] = mapped_column(Boolean, default=False) #Not User Editable
 
     # Relationships
-    organization: Mapped["Organization"] = relationship("Organization", back_populates="organization_configurations")
+    organization: Mapped["Organization"] = relationship(
+        "Organization", back_populates="organization_configurations"
+    )
