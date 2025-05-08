@@ -29,7 +29,10 @@ async def index(
     """
     Get all organizations.
     """
-    current_user = auth.current_user()
+    #current_user = auth.current_user()
+    access_token: str = auth.valid_token()
+
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
     return await Controller().index(request, current_user)
 
 
@@ -45,7 +48,10 @@ async def show(
     """
     Get the organization with the given uid.
     """
-    current_user = auth.current_user()
+    #current_user = auth.current_user()
+    access_token: str = auth.valid_token()
+
+    current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
     return await Controller().show(uid, request, current_user)
 
 

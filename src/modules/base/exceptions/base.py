@@ -1,5 +1,6 @@
 """ Import the required modules """
 from http import HTTPStatus
+from botocore.exceptions import ClientError
 
 # Generic Exception : 400
 class GenericBaseException(Exception):
@@ -241,3 +242,20 @@ class InternalServerErrorException(GenericBaseException):
             self.error_msg_code = error_msg_code
 
         super().__init__(message=message, error_msg_code=error_msg_code)
+
+# AWS Exception : 400
+class AWSValueException(BadRequestException):
+    """ AWS Exception : 400
+
+    This exception is used when a request is made with invalid AWS values
+    or when a request cannot be processed due to invalid AWS values.
+    """
+    error_msg_code = 'error_code_aws'
+
+    def __init__(self, exception: ClientError, error_msg_code: str|None=None):
+        if exception:
+            self.message = exception.response["Error"]["Message"]
+        if error_msg_code:
+            self.error_msg_code = error_msg_code
+
+        super().__init__(message=self.message, error_msg_code=error_msg_code)

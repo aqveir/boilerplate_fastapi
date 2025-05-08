@@ -102,9 +102,13 @@ class ClaimService:
                 key=config.CLAIM_TABLE_KEY
             )
             if not claim:
-                raise InvalidTokenException(error_msg_code="error_code_claim_not_found")
+                raise InvalidTokenException(
+                    error_msg_code="error_code_claim_not_found"
+                )
 
-            return TypeAdapter(AuthClaim).validate_python(claim)
+            # Validate the claim using TypeAdapter
+            ta: TypeAdapter = TypeAdapter(AuthClaim)
+            return ta.validate_python(claim)
         except Exception as e:
             raise e
 
@@ -120,13 +124,16 @@ class ClaimService:
         try:
             # Get the claim from storage
             claims = self.storage_service.query_data(
-                query=query,
-                key=config.CLAIM_TABLE_KEY
+                query=query
             )
             if not claims:
-                raise InvalidTokenException(error_msg_code="error_code_claim_not_found")
-
-            return TypeAdapter(List[AuthClaim]).validate_python(claims)
+                raise InvalidTokenException(
+                    error_msg_code="error_code_claim_not_found"
+                )
+            
+            # Validate the claim using TypeAdapter
+            ta: TypeAdapter = TypeAdapter(List[AuthClaim])
+            return ta.validate_python(claims)
         except Exception as e:
             raise e
 
@@ -139,7 +146,9 @@ class ClaimService:
         user data.
         """
         try:
-            response = self.storage_service.set_data(claim.model_dump())
+            response = self.storage_service.set_data(
+                claim.model_dump(mode='python', exclude_none=True),
+            )
             if not response:
                 raise InvalidTokenException()
 

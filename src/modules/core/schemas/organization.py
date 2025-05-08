@@ -1,7 +1,7 @@
 """ Import the required modules """
 import dataclasses
 import datetime
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 # Importing necessary modules from SQLAlchemy
 from sqlalchemy import (
@@ -18,10 +18,12 @@ from modules.base.db.base import (
     BaseDB,
     BaseSchemaUUIDAuditLogDeleteLog
 )
-from modules.core.schemas.lookup import LookUpSchema as LookUp
-from modules.core.schemas.organization_configuration import (
-    OrganizationConfigurationSchema as OrganizationConfiguration
-)
+
+if TYPE_CHECKING:
+    from modules.core.schemas.lookup import LookUpSchema as LookUp
+    from modules.core.schemas.organization_configuration import (
+        OrganizationConfigurationSchema as OrganizationConfiguration
+    )
 
 
 @dataclasses.dataclass
@@ -40,7 +42,7 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     __tablename__ = "organizations"
 
     # Foreign fields
-    type_id: Mapped[int] = mapped_column(ForeignKey("lookup.id"))
+    type_id: Mapped[int] = mapped_column(ForeignKey("lookups.id"))
 
     # Entity fields
     display_name: Mapped[str] = mapped_column(

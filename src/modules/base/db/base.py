@@ -12,7 +12,10 @@ from sqlalchemy import (
     Boolean
 )
 from sqlalchemy.sql import func
-from sqlalchemy.orm import (DeclarativeBase, Mapped, mapped_column)
+from sqlalchemy.orm import (
+    DeclarativeBase, declarative_base,
+    Mapped, mapped_column
+)
 from sqlalchemy.ext.declarative import DeferredReflection
 
 
@@ -109,3 +112,5 @@ class BaseSchemaUUIDAuditLogDeleteLog(BaseSchemaUUID, BaseSchemaAuditLogDeleteLo
     This schema defines the structure of the base data.
     """
     pass
+
+BaseSchema = declarative_base()

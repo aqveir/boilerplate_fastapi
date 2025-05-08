@@ -1,6 +1,6 @@
 """ Import the required modules """
 import dataclasses
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from sqlalchemy import (
     ForeignKey,
     Boolean,
@@ -13,10 +13,13 @@ from modules.base.db.base import (
     BaseDB,
     BaseSchemaAuditLog
 )
-#from modules.core.schemas.lookup import LookUp
-from modules.core.schemas.organization import (
-    OrganizationSchema as Organization
-)
+
+if TYPE_CHECKING:
+    #from modules.core.schemas.lookup import LookUp
+
+    from modules.core.schemas.organization import (
+        OrganizationSchema as Organization
+    )
 
 
 @dataclasses.dataclass

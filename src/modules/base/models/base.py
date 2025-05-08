@@ -1,9 +1,13 @@
-from typing import Generic, List, Optional, TypeVar, Union
+""" Import the required modules """
+from typing import (Generic, Optional, TypeVar)
 
 from uuid import UUID, uuid1
-from datetime import datetime, date
+from datetime import datetime
 from fastapi import status
-from pydantic import (BaseModel, Field, SerializeAsAny, computed_field, field_serializer)
+from pydantic import (
+    BaseModel, Field, SerializeAsAny,
+    computed_field, field_serializer
+)
 
 T = TypeVar('T')
 
@@ -52,7 +56,7 @@ class AppBaseModelWithAuditLog(ApplicationBaseModel):
             return_value = self.created_at
 
         return return_value
-    
+
 
 class AppBaseModelWithHashAndAuditLog(AppBaseModelWithAuditLog):
     """
@@ -63,9 +67,12 @@ class AppBaseModelWithHashAndAuditLog(AppBaseModelWithAuditLog):
     @field_serializer('hash', when_used='json')
     def serialize_hash(self, value: UUID) -> str:
         return str(value)
-    
-    
+
+
 class GenericResponse(BaseModel, Generic[T]):
+    """
+    Generic response model for API responses.
+    """
     status_code: int
     message: str
     success: bool = True
@@ -75,6 +82,9 @@ class GenericResponse(BaseModel, Generic[T]):
 
 
 class GenericSuccessResponse(GenericResponse, Generic[T]):
+    """
+    Generic success response model for API responses.
+    """
     status_code: int = status.HTTP_200_OK
     message: str = "success"
     success: bool = True

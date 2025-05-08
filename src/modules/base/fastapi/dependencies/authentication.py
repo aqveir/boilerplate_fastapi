@@ -29,20 +29,24 @@ class AuthGaurd:
 
     def access_token(self) -> str:
         return self.access_token
-    
+
 
     def valid_token(self)-> str:
+        """
+        Validate the access token and return it if valid.
+        Raise an exception if invalid.
+        """
         try:
             # This could be JWT validation.
             claim: AuthClaim = self.claim_service.get(value=self.access_token)
-            if claim == None:
+            if claim is None:
                 raise InvalidTokenException()
 
             return self.access_token
         except Exception as e:
             raise e
-        
-    
+
+
     def get_user(self) -> User:
         try:
             # This could be JWT validation.

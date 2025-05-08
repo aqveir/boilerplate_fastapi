@@ -3,7 +3,10 @@ from typing import List
 import boto3
 from boto3.dynamodb.conditions import Key
 # from boto3.dynamodb.types import TypeDeserializer, TypeSerializer
-# from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError
+from modules.base.exceptions.base import (
+    AWSValueException
+)
 
 from modules.base.config import config
 
@@ -48,9 +51,8 @@ class DynamoDBService:
                 ProvisionedThroughput=provisioned_throughput
             )
             return response
-        except Exception as e:
-            print(f"Error creating table: {e}")
-            return None
+        except ClientError as e:
+            raise AWSValueException(exception=e) from e
 
 
     def delete_table(self, table_name):
@@ -60,12 +62,11 @@ class DynamoDBService:
         try:
             response = self.dynamodb_connection.delete_table(TableName=table_name)
             return response
-        except Exception as e:
-            print(f"Error deleting table: {e}")
-            return None
+        except ClientError as e:
+            raise AWSValueException(exception=e) from e
 
 
-    def set_data(self, data: dict):
+    def set_data(self, data: dict) -> dict:
         """  Put an item in a DynamoDB table.
 
         This method is used to store data in a DynamoDB table. This method 
@@ -80,13 +81,13 @@ class DynamoDBService:
             return self.dynamodb_table.put_item(
                 Item=data
             )
-        except Exception as e:
-            raise e
+        except ClientError as e:
+            raise AWSValueException(exception=e) from e
 
 
     def get_data(self, value: str,
             key:str = config.CLAIM_TABLE_KEY
-        ) -> str | None:
+        ) -> dict | None:
         """
         Get an item from a DynamoDB table.
         """
@@ -98,12 +99,11 @@ class DynamoDBService:
 
             # Check if the item exists in the response
             if 'Item' in response:
-                return str(response['Item'])
-            else:
-                return None
-        except Exception as e:
-            print(f"Error getting item: {e}")
+                return response['Item']
+
             return None
+        except ClientError as e:
+            raise AWSValueException(exception=e) from e
 
 
     def query_data(self, query: dict[str, str]) -> List[str] | None:
@@ -123,9 +123,8 @@ class DynamoDBService:
                 return str(response['Items'])
 
             return None
-        except Exception as e:
-            print(f"Error getting item: {e}")
-            return None
+        except ClientError as e:
+            raise AWSValueException(exception=e) from e
 
 
     def delete_data(self, value: str, key: str = config.CLAIM_TABLE_KEY):
@@ -137,9 +136,9 @@ class DynamoDBService:
                 Key={key: value}
             )
             return response
-        except Exception as e:
-            print(f"Error deleting item: {e}")
-            return None
+        
+        except ClientError as e:
+            raise AWSValueException(exception=e) from e
 
 
     # Code referenced from

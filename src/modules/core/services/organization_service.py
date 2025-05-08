@@ -1,4 +1,5 @@
 """ Import the required modules """
+import logging
 from typing import List
 from pydantic import TypeAdapter, BaseModel
 
@@ -29,11 +30,14 @@ from ..events.organization_event import (
     OrganizationDeleteEvent
 )
 
+# Initialize the logger
+logger = logging.getLogger(__name__)
+
 
 class OrganizationService(BaseService):
     """ OrganizationService class to handle organization related operations. """
     def __init__(self):
-        self.repository = OrganizationRepository
+        self.repository = OrganizationRepository()
         self.claim_service = ClaimService()
         super().__init__(self.repository)
 
@@ -125,12 +129,15 @@ class OrganizationService(BaseService):
         ) -> Organization:
         """ Get the object """
         try:
+            logger.info(f"OrganizationService.get: {uid}")
             # Validate the payload
-            response = await self.repository.get_by_hash(uid)
+            response = await self.repository.get_by_uid(uid=uid)
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to get the organization from IP address = " + ip_address
                 )
+
+            logger.info(f"OrganizationService.get: {response.id}")
 
             # Validate the response
             model: Organization = TypeAdapter(Organization).validate_python(response)
