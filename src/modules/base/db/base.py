@@ -8,7 +8,6 @@ from uuid import UUID
 from sqlalchemy import (
     BigInteger,
     String,
-    Uuid,
     DateTime,
     Boolean
 )
@@ -82,7 +81,7 @@ class BaseSchemaUUID(AbstractBaseSchema):
     __abstract__ = True
 
     # Unique identifiers
-    hash: Mapped[str] = mapped_column(
+    hash: Mapped[UUID] = mapped_column(
         String, unique=True, index=True,
         sort_order=-9
     )
@@ -108,7 +107,8 @@ class BaseSchemaAuditLogDeleteLog(BaseSchemaAuditLog):
 
 
 @dataclasses.dataclass
-class BaseSchemaUUIDAuditLogDeleteLog(BaseSchemaUUID, BaseSchemaAuditLogDeleteLog):
+class BaseSchemaUUIDAuditLogDeleteLog(
+    BaseSchemaUUID, BaseSchemaAuditLogDeleteLog):
     """
     Base schema for all models requiring UUID and audit logging.
     This schema defines the structure of the base data.
