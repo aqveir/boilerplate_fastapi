@@ -7,6 +7,7 @@ from uuid import UUID
 # Importing necessary modules from SQLAlchemy
 from sqlalchemy import (
     BigInteger,
+    String,
     Uuid,
     DateTime,
     Boolean
@@ -16,11 +17,12 @@ from sqlalchemy.orm import (
     DeclarativeBase, declarative_base,
     Mapped, mapped_column
 )
-from sqlalchemy.ext.declarative import DeferredReflection
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.ext.declarative import AbstractConcreteBase
 
 
 @dataclasses.dataclass
-class BaseDB(DeclarativeBase):
+class BaseDB(AsyncAttrs, DeclarativeBase):
     """
     Base class for all models.
     """
@@ -28,7 +30,7 @@ class BaseDB(DeclarativeBase):
 
 
 @dataclasses.dataclass
-class BaseReflectionSchema(DeferredReflection):
+class AbstractBaseSchema(AbstractConcreteBase):
     """
     Base schema for all models.
     This schema defines the structure of the base data.
@@ -43,7 +45,7 @@ class BaseReflectionSchema(DeferredReflection):
 
 
 @dataclasses.dataclass
-class BaseSchemaAuditLog(BaseReflectionSchema):
+class BaseSchemaAuditLog(AbstractBaseSchema):
     """
     Base schema for all models requiring audit logging.
     This schema defines the structure of the base data.
@@ -72,7 +74,7 @@ class BaseSchemaAuditLog(BaseReflectionSchema):
 
 
 @dataclasses.dataclass
-class BaseSchemaUUID(BaseReflectionSchema):
+class BaseSchemaUUID(AbstractBaseSchema):
     """
     Base schema for all models requiring UUID and audit logging.
     This schema defines the structure of the base data.
@@ -80,8 +82,8 @@ class BaseSchemaUUID(BaseReflectionSchema):
     __abstract__ = True
 
     # Unique identifiers
-    hash: Mapped[UUID] = mapped_column(
-        Uuid, unique=True, index=True,
+    hash: Mapped[str] = mapped_column(
+        String, unique=True, index=True,
         sort_order=-9
     )
 

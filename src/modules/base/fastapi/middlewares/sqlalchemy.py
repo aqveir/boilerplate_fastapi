@@ -1,3 +1,4 @@
+""" Import the required modules """
 from uuid import uuid4
 
 from starlette.types import ASGIApp, Receive, Scope, Send
@@ -6,6 +7,7 @@ from modules.base.db.session import set_session_context, reset_session_context, 
 
 
 class SQLAlchemyMiddleware:
+    """ SQL Alchemy Middleware """
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 

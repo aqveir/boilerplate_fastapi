@@ -34,14 +34,29 @@ class AppBaseModelWithAuditLog(ApplicationBaseModel):
     Base model for the application with hash and audit log.
     """
 
-    created_by: int = Field(default=0, description="Created By", exclude=True)
-    created_at: datetime = Field(default_factory=datetime.now, description="Created At", exclude=True)
-    updated_by: int = Field(default=None, description="Updated By", exclude=True)
-    updated_at: datetime = Field(default=None, description="Updated At", exclude=True)
-    deleted_by: int = Field(default=None, description="Deleted By", exclude=True)
-    deleted_at: datetime = Field(default=None, description="Deleted At", exclude=True)
+    created_by: int = Field(
+        default=0, description="Created By", exclude=True
+    )
+    created_at: datetime = Field(
+        default_factory=datetime.now,
+        description="Created At", exclude=True
+    )
+    updated_by: Optional[int] = Field(
+        default=0, description="Updated By", exclude=True
+    )
+    updated_at: Optional[datetime] = Field(
+        default=None, description="Updated At", exclude=True
+    )
+    deleted_by: Optional[int] = Field(
+        default=0, description="Deleted By", exclude=True
+    )
+    deleted_at: Optional[datetime] = Field(
+        default=None, description="Deleted At", exclude=True
+    )
 
-    is_active: int = Field(default=1, description="Is Active", exclude=True)
+    is_active: int = Field(
+        default=1, description="Is Active", exclude=True
+    )
 
     @computed_field
     @property

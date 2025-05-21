@@ -33,7 +33,6 @@ from ..events.organization_event import (
 # Initialize the logger
 logger = logging.getLogger(__name__)
 
-
 class OrganizationService(BaseService):
     """ OrganizationService class to handle organization related operations. """
     def __init__(self):
@@ -131,13 +130,14 @@ class OrganizationService(BaseService):
         try:
             logger.info(f"OrganizationService.get: {uid}")
             # Validate the payload
-            response = await self.repository.get_by_uid(uid=uid)
+            response = await self.repository.get_by_hash(uid)
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to get the organization from IP address = " + ip_address
                 )
 
             logger.info(f"OrganizationService.get: {response.id}")
+            logger.info(response.subdomain)
 
             # Validate the response
             model: Organization = TypeAdapter(Organization).validate_python(response)

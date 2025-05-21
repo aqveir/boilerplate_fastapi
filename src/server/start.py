@@ -16,6 +16,7 @@ from modules.auth.routes.route import router as auth_router
 from modules.core.routes.organization_router import router as organization_router
 from modules.core.routes.lookup_router import router as lookup_router
 from modules.user.routes.route import router as user_router
+from modules.base.fastapi.middlewares import SQLAlchemyMiddleware
 
 # Import the project exception handler
 from modules.base.exceptions.base import (
@@ -90,7 +91,7 @@ def make_middleware() -> List[Middleware]:
         #     backend=AuthBackend(),
         #     on_error=on_auth_error,
         # ),
-        # Middleware(SQLAlchemyMiddleware),
+        Middleware(SQLAlchemyMiddleware),
         # Middleware(ResponseLoggerMiddleware),
     ]
 

@@ -1,3 +1,4 @@
+""" Import the required modules """
 from contextlib import asynccontextmanager
 from contextvars import ContextVar, Token
 from enum import Enum
@@ -9,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase, Session
+from sqlalchemy.orm import Session
 from sqlalchemy.sql.expression import Delete, Insert, Update
 
 from modules.base.config import config
@@ -35,20 +36,35 @@ class EngineType(Enum):
 
 
 engines = {
-    EngineType.WRITER: create_async_engine(config.WRITER_DB_URL, pool_recycle=3600),
-    EngineType.READER: create_async_engine(config.READER_DB_URL, pool_recycle=3600),
+    EngineType.WRITER: create_async_engine(
+        config.WRITER_DB_URL,
+        pool_recycle=3600
+    ),
+    EngineType.READER: create_async_engine(
+        config.READER_DB_URL,
+        pool_recycle=3600
+    ),
 }
 
 
 class RoutingSession(Session):
+    """ 
+    A session that routes to the appropriate engine 
+    based on the operation type.
+    """
     def get_bind(self, mapper=None, clause=None, **kw):
+        """
+        Returns the appropriate engine based on the operation type.
+        If the operation is a write operation (Update, Delete, Insert),
+        it uses the writer engine. Otherwise, it uses the reader engine.
+        """
         if self._flushing or isinstance(clause, (Update, Delete, Insert)):
             return engines[EngineType.WRITER].sync_engine
-        else:
-            return engines[EngineType.READER].sync_engine
+
+        return engines[EngineType.READER].sync_engine
 
 
-_async_session_factory = async_sessionmaker(
+_async_session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
     class_=AsyncSession,
     sync_session_class=RoutingSession,
     expire_on_commit=False,
@@ -59,13 +75,9 @@ session = async_scoped_session(
 )
 
 
-class Base(DeclarativeBase):
-    ...
-
-
 @asynccontextmanager
 async def session_factory() -> AsyncGenerator[AsyncSession, None]:
-    _session = async_sessionmaker(
+    _session: async_sessionmaker[AsyncSession] = async_sessionmaker(
         class_=AsyncSession,
         sync_session_class=RoutingSession,
         expire_on_commit=False,

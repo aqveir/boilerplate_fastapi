@@ -1,12 +1,21 @@
 """ Import the required modules """
 from functools import reduce
 from typing import Any, Generic, Type, TypeVar
+from uuid import UUID
 
 from sqlalchemy import Select, func
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    AsyncSession
+)
 from sqlalchemy.sql.expression import select
 
 from modules.base.db.base import BaseDB
+from modules.base.exceptions import (
+    EntityNotFoundException,
+    EntityNotSavedException,
+)
+from modules.base.db import session
 
 T = TypeVar("T", bound=BaseDB)
 
@@ -14,26 +23,37 @@ T = TypeVar("T", bound=BaseDB)
 class BaseRepository(Generic[T]):
     """Base class for data repositories."""
 
-    def __init__(self, model: Type[T], db_session: AsyncSession):
-        self.session = db_session
+    def __init__(self, model: Type[T]):
+        self.session = session
         self.model_class: Type[T] = model
 
-    async def create(self, attributes: dict[str, Any] = None) -> T:
+    async def create(
+        self,
+        attributes: dict[str, Any] = None) -> T:
         """
         Creates the model instance.
 
         :param attributes: The attributes to create the model with.
         :return: The created model instance.
         """
-        if attributes is None:
-            attributes = {}
-        model = self.model_class(**attributes)
-        self.session.add(model)
-        return model
+        try:
+            if attributes is None:
+                attributes = {}
+
+            # Create the model instance
+            model = self.model_class(**attributes)
+
+            # Add the model instance to the session
+            self.session.add(model)
+
+            return model
+        except EntityNotSavedException as e:
+            raise e
 
     async def get_all(
-        self, skip: int = 0, limit: int = 100, join_: set[str] | None = None
-    ) -> list[T]:
+        self,
+        skip: int = 0, limit: int = 100,
+        join_: set[str] | None = None) -> list[T]:
         """
         Returns a list of model instances.
 
@@ -55,8 +75,7 @@ class BaseRepository(Generic[T]):
         field: str,
         value: Any,
         join_: set[str] | None = None,
-        unique: bool = False,
-    ) -> T:
+        unique: bool = False) -> T:
         """
         Returns the model instance matching the field and value.
 
@@ -65,25 +84,144 @@ class BaseRepository(Generic[T]):
         :param join_: The joins to make.
         :return: The model instance.
         """
-        query = self._query(join_)
-        query = await self._get_by(query, field, value)
+        try:
+            query = self._query(join_)
+            query = await self._get_by(query, field, value)
 
-        if join_ is not None:
-            return await self._all_unique(query)
-        if unique:
-            return await self._one(query)
+            if join_ is not None:
+                return await self._all_unique(query)
+            if unique:
+                return await self._one(query)
 
-        return await self._all(query)
+            return await self._all(query)
+        except EntityNotFoundException as e:
+            raise e
 
-    async def delete(self, model: T) -> None:
+    async def update(
+        self,
+        model: T,
+        user_id: int = 0) -> T:
+        """
+        Updates the model instance.
+        :param model: The model instance to update.
+        :param user_id: The user id to update.
+        :return: The updated model instance.
+        """
+        try:
+            for key, value in attributes.items():
+                setattr(model, key, value)
+
+            model.updated_at = func.now()
+            model.updated_by = user_id
+
+            self.session.add(model)
+            await self.session.commit()
+            await self.session.flush()
+            await self.session.refresh(model)
+            await self.session.expire(model)
+
+            return model
+        except EntityNotSavedException as e:
+            await self.session.rollback()
+            raise e
+        finally:
+            await self.session.close()
+            await self.session.remove()
+
+    async def delete(
+        self,
+        model: T,
+        is_hard_delete: bool=False) -> None:
         """
         Deletes the model.
 
         :param model: The model to delete.
         :return: None
         """
-        self.session.delete(model)
+        try:
+            if is_hard_delete:
+                await self._hard_delete(model)
+            else:
+                await self._soft_delete(model)
+        except Exception as e:
+            raise e
 
+
+    async def get_by_id(
+        self,
+        id_: int,
+        join_: set[str] | None = None) -> T:
+        """
+        Returns the model instance matching the id.
+
+        :param id_: The id to match.
+        :param join_: The joins to make.
+        :return: The model instance.
+        """
+        try:
+            db_obj = await self.get_by(
+                field="id", value=id_, join_=join_, unique=True
+            )
+            if not db_obj:
+                raise EntityNotFoundException(
+                    f"{self.model_class.__tablename__.title()} with id: {id} does not exist"
+                )
+
+            return db_obj
+        except EntityNotFoundException as e:
+            raise e
+        except Exception as e:
+            raise e
+
+    async def get_by_hash(
+        self,
+        uid: UUID,
+        join_: set[str] | None = None) -> T:
+        """
+        Returns the model instance matching the uid.
+
+        :param uid: The uid to match.
+        :param join_: The joins to make.
+        :return: The model instance.
+        """
+        try:
+            db_obj = await self.get_by(
+                field="hash", value=uid, join_=join_, unique=True
+            )
+            if not db_obj:
+                raise EntityNotFoundException(
+                    f"{self.model_class.__tablename__.title()} with hash: {uid} does not exist"
+                )
+            return db_obj
+        except EntityNotFoundException as e:
+            raise e
+        except Exception as e:
+            raise e
+
+    async def get_by_uuid(
+        self,
+        uuid: UUID,
+        join_: set[str] | None = None) -> T:
+        """
+        Returns the model instance matching the uuid.
+
+        :param uuid: The uuid to match.
+        :param join_: The joins to make.
+        :return: The model instance.
+        """
+        try:
+            db_obj = await self.get_by(
+                field="uuid", value=uuid, join_=join_, unique=True
+            )
+            if not db_obj:
+                raise EntityNotFoundException(
+                    f"{self.model_class.__tablename__.title()} with uuid: {uuid} does not exist"
+                )
+            return db_obj
+        except EntityNotFoundException as e:
+            raise e
+        except Exception as e:
+            raise e
 
 
     def _query(
@@ -195,6 +333,48 @@ class BaseRepository(Generic[T]):
         :return: The filtered query.
         """
         return query.where(getattr(self.model_class, field) == value)
+
+    async def _soft_delete(self, model: T, user_id: int=0) -> None:
+        """
+        Soft deletes the model.
+
+        :param model: The model to soft delete.
+        :return: None
+        """
+        try:
+            model.deleted_at = func.now()
+            model.deleted_by = user_id
+            self.session.add(model)
+            await self.session.commit()
+            await self.session.flush()
+            await self.session.refresh(model)
+            await self.session.expire(model)
+        except EntityNotSavedException as e:
+            await self.session.rollback()
+            raise e
+        finally:
+            await self.session.close()
+            await self.session.remove()
+
+    async def _hard_delete(self, model: T) -> None:
+        """
+        Hard deletes the model.
+
+        :param model: The model to hard delete.
+        :return: None
+        """
+        try:
+            await self.session.delete(model)
+            await self.session.commit()
+            await self.session.flush()
+            await self.session.refresh(model)
+            await self.session.expire(model)
+        except EntityNotSavedException as e:
+            await self.session.rollback()
+            raise e
+        finally:
+            await self.session.close()
+            await self.session.remove()
 
     def _maybe_join(self, query: Select, join_: set[str] | None = None) -> Select:
         """

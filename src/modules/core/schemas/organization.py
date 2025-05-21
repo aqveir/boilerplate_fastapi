@@ -20,8 +20,8 @@ from modules.base.db.base import (
 )
 
 if TYPE_CHECKING:
-    from modules.core.schemas.lookup import LookUpSchema as LookUp
-    from modules.core.schemas.organization_configuration import (
+    from modules.core.schemas import LookUpSchema as LookUp
+    from modules.core.schemas import (
         OrganizationConfigurationSchema as OrganizationConfiguration
     )
 
@@ -42,16 +42,16 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     __tablename__ = "organizations"
 
     # Foreign fields
-    type_id: Mapped[int] = mapped_column(ForeignKey("lookups.id"))
+    # type_id: Mapped[int] = mapped_column(ForeignKey("lookups.id"))
 
     # Entity fields
-    display_name: Mapped[str] = mapped_column(
-        String(128), nullable=False, index=True
-    )
-    legal_name: Mapped[Optional[str]] = mapped_column(
-        String(128), nullable=True
-    )
-    description: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    # display_name: Mapped[str] = mapped_column(
+    #     String(128), nullable=False, index=True
+    # )
+    # legal_name: Mapped[Optional[str]] = mapped_column(
+    #     String(128), nullable=True
+    # )
+    # description: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
     logo: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
 
     # Domain fields
@@ -85,20 +85,20 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     )
 
     # External Payment fields (e.g. Stripe)
-    payment_provider: Mapped[Optional[str]] = mapped_column(
-        String(128), nullable=True, index=True
-    )
-    payment_provider_customer_id: Mapped[Optional[str]] = mapped_column(
-        String(128), nullable=True, index=True
-    )
+    # payment_provider: Mapped[Optional[str]] = mapped_column(
+    #     String(128), nullable=True, index=True
+    # )
+    # payment_provider_customer_id: Mapped[Optional[str]] = mapped_column(
+    #     String(128), nullable=True, index=True
+    # )
     trial_ends_at: Mapped[datetime.datetime] = mapped_column(
         DateTime, nullable=True, index=True
     )
 
     # Relationships
-    type: Mapped["LookUp"] = relationship(
-        "LookUp", back_populates="organizations"
-    )
-    configurations: Mapped[List["OrganizationConfiguration"]] = relationship(
-        back_populates="organizations"
-    )
+    # type: Mapped["LookUp"] = relationship(
+    #     "LookUp", back_populates="organizations"
+    # )
+    # configurations: Mapped[List["OrganizationConfiguration"]] = relationship(
+    #     back_populates="organizations"
+    # )
