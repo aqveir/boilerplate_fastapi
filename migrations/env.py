@@ -6,13 +6,20 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
+from alembic.context import (
+    config as alembic_config,
+    configure as alembic_configure,
+    begin_transaction as alembic_begin_transaction,
+    run_migrations as alembic_run_migrations,
+    is_offline_mode as alembic_is_offline_mode,
+)
 
 from modules.base.db import BaseDB
+from modules.core.schemas import OrganizationSchema
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
-config = context.config
+config = alembic_config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -44,22 +51,30 @@ def run_migrations_offline() -> None:
 
     """
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(
+    alembic_configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
 
-    with context.begin_transaction():
-        context.run_migrations()
+    with alembic_begin_transaction():
+        alembic_run_migrations()
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    """
+    Run migrations in 'online' mode.
+    In this scenario we need to create an Engine
+    and associate a connection with the context.
+    """
+    alembic_configure(
+        connection=connection,
+        target_metadata=target_metadata
+    )
 
-    with context.begin_transaction():
-        context.run_migrations()
+    with alembic_begin_transaction():
+        alembic_run_migrations()
 
 
 async def run_async_migrations() -> None:
@@ -86,7 +101,7 @@ def run_migrations_online() -> None:
     asyncio.run(run_async_migrations())
 
 
-if context.is_offline_mode():
+if alembic_is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
