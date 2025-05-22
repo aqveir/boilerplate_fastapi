@@ -1,5 +1,4 @@
 """ Import the required modules """
-import dataclasses
 import datetime
 from typing import List, Optional, TYPE_CHECKING
 
@@ -26,7 +25,6 @@ if TYPE_CHECKING:
     )
 
 
-@dataclasses.dataclass
 class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     """
     Organization model for the application.
@@ -42,16 +40,16 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     __tablename__ = "organizations"
 
     # Foreign fields
-    # type_id: Mapped[int] = mapped_column(ForeignKey("lookups.id"))
+    type_id: Mapped[int] = mapped_column(ForeignKey("lookups.id"))
 
     # Entity fields
-    # display_name: Mapped[str] = mapped_column(
-    #     String(128), nullable=False, index=True
-    # )
-    # legal_name: Mapped[Optional[str]] = mapped_column(
-    #     String(128), nullable=True
-    # )
-    # description: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    display_name: Mapped[str] = mapped_column(
+        String(128), nullable=False, index=True
+    )
+    legal_name: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True
+    )
+    description: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
     logo: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
 
     # Domain fields
@@ -73,32 +71,32 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     longitude: Mapped[float] = mapped_column(Float, nullable=True)
 
     # Contact fields
-    phone: Mapped[str] = mapped_column(String(32), nullable=True, index=True)
-    email: Mapped[str] = mapped_column(String(128), nullable=True, index=True)
+    phone: Mapped[str] = mapped_column(String(32), nullable=True, index=False)
+    email: Mapped[str] = mapped_column(String(128), nullable=True, index=False)
 
     # Extra fields
     search_tags: Mapped[Optional[str]] = mapped_column(
-        String(256), nullable=True, index=True
+        String(256), nullable=True, index=False
     )
     website: Mapped[Optional[str]] = mapped_column(
         String(256), nullable=True
     )
 
     # External Payment fields (e.g. Stripe)
-    # payment_provider: Mapped[Optional[str]] = mapped_column(
-    #     String(128), nullable=True, index=True
-    # )
-    # payment_provider_customer_id: Mapped[Optional[str]] = mapped_column(
-    #     String(128), nullable=True, index=True
-    # )
+    payment_provider: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True, index=False
+    )
+    payment_provider_customer_id: Mapped[Optional[str]] = mapped_column(
+        String(128), nullable=True, index=False
+    )
     trial_ends_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime, nullable=True, index=True
+        DateTime, nullable=True, index=False
     )
 
     # Relationships
-    # type: Mapped["LookUp"] = relationship(
-    #     "LookUp", back_populates="organizations"
-    # )
-    # configurations: Mapped[List["OrganizationConfiguration"]] = relationship(
-    #     back_populates="organizations"
-    # )
+    type: Mapped["LookUp"] = relationship(
+        "LookUp", back_populates="organizations"
+    )
+    configurations: Mapped[List["OrganizationConfiguration"]] = relationship(
+        back_populates="organizations"
+    )

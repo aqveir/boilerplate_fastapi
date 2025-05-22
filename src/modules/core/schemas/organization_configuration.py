@@ -1,5 +1,4 @@
 """ Import the required modules """
-import dataclasses
 from typing import Optional, TYPE_CHECKING
 from sqlalchemy import (
     ForeignKey,
@@ -22,7 +21,6 @@ if TYPE_CHECKING:
     )
 
 
-@dataclasses.dataclass
 class OrganizationConfigurationSchema(BaseSchemaAuditLog, BaseDB):
     """
     Organization Configuration model for the application.
@@ -36,12 +34,18 @@ class OrganizationConfigurationSchema(BaseSchemaAuditLog, BaseDB):
     __tablename__ = "organization_configurations"
 
     # Foreign fields
-    # organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id"))
+    organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id"))
 
     # Entity fields
-    data_type: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
-    data_key: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
-    data_value: Mapped[str] = mapped_column(String(8000), nullable=False, index=True)
+    data_type: Mapped[str] = mapped_column(
+        String(128), nullable=False, index=True
+    )
+    data_key: Mapped[str] = mapped_column(
+        String(128), nullable=False, index=True
+    )
+    data_value: Mapped[str] = mapped_column(
+        String(8000), nullable=False, index=True
+    )
     display_name: Mapped[Optional[str]] = mapped_column(
         String(128), nullable=True
     )
@@ -49,7 +53,7 @@ class OrganizationConfigurationSchema(BaseSchemaAuditLog, BaseDB):
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)
     is_secure: Mapped[bool] = mapped_column(Boolean, default=False) #Not User Editable
 
-    # # Relationships
-    # organization: Mapped["Organization"] = relationship(
-    #     "Organization", back_populates="organization_configurations"
-    # )
+    # Relationships
+    organization: Mapped["Organization"] = relationship(
+        "Organization", back_populates="organization_configurations"
+    )

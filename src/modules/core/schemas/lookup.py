@@ -36,11 +36,17 @@ class LookUpSchema(BaseSchemaAuditLog, BaseDB):
     )
 
     # Entity fields
-    lookup_type: Mapped[LookupMaster] = mapped_column(String(128), index=True)
-    lookup_key: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
-    lookup_value: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    lookup_type: Mapped[LookupMaster] = mapped_column(
+        String(128), index=True
+    )
+    lookup_key: Mapped[str] = mapped_column(
+        String(128), nullable=False, index=True
+    )
+    lookup_value: Mapped[str] = mapped_column(
+        String(128), nullable=False, index=True
+    )
     description: Mapped[Optional[str]] = mapped_column(
-        String(8000), nullable=True
+        String(8000), nullable=True, index=False
     )
 
     is_default: Mapped[bool] = mapped_column(Boolean, default=False)

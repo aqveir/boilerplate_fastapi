@@ -1,5 +1,4 @@
 """ Import the required modules """
-import dataclasses
 import datetime
 from typing import Optional
 from uuid import UUID
@@ -9,7 +8,8 @@ from sqlalchemy import (
     BigInteger,
     String,
     DateTime,
-    Boolean
+    Boolean,
+    MetaData
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import (
@@ -20,15 +20,16 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 
 
-@dataclasses.dataclass
+metadata_obj = MetaData(schema="public")
+
+
 class BaseDB(AsyncAttrs, DeclarativeBase):
     """
     Base class for all models.
     """
-    pass
+    metadata = metadata_obj
 
 
-@dataclasses.dataclass
 class AbstractBaseSchema(AbstractConcreteBase):
     """
     Base schema for all models.
@@ -43,7 +44,6 @@ class AbstractBaseSchema(AbstractConcreteBase):
     )
 
 
-@dataclasses.dataclass
 class BaseSchemaAuditLog(AbstractBaseSchema):
     """
     Base schema for all models requiring audit logging.
@@ -72,7 +72,6 @@ class BaseSchemaAuditLog(AbstractBaseSchema):
     )
 
 
-@dataclasses.dataclass
 class BaseSchemaUUID(AbstractBaseSchema):
     """
     Base schema for all models requiring UUID and audit logging.
@@ -87,7 +86,6 @@ class BaseSchemaUUID(AbstractBaseSchema):
     )
 
 
-@dataclasses.dataclass
 class BaseSchemaAuditLogDeleteLog(BaseSchemaAuditLog):
     """
     Base schema for all models.
@@ -106,7 +104,6 @@ class BaseSchemaAuditLogDeleteLog(BaseSchemaAuditLog):
     )
 
 
-@dataclasses.dataclass
 class BaseSchemaUUIDAuditLogDeleteLog(
     BaseSchemaUUID, BaseSchemaAuditLogDeleteLog):
     """
