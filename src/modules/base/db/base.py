@@ -55,20 +55,24 @@ class BaseSchemaAuditLog(AbstractBaseSchema):
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.UTC_TIMESTAMP(),
-        sort_order=100
+        sort_order=1000
     )
     created_by: Mapped[int] = mapped_column(
-        BigInteger, default=0, sort_order=101
+        BigInteger, default=0,
+        sort_order=1001
     )
     updated_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True,
-        onupdate=func.UTC_TIMESTAMP(), sort_order=102
+        onupdate=func.UTC_TIMESTAMP(),
+        sort_order=1002
     )
     updated_by: Mapped[Optional[int]] = mapped_column(
-        BigInteger, nullable=True, sort_order=103
+        BigInteger, nullable=True,
+        sort_order=1003
     )
     is_active: Mapped[bool] = mapped_column(
-        Boolean, default=1, sort_order=110
+        Boolean, default=1,
+        sort_order=1010
     )
 
 
@@ -96,11 +100,11 @@ class BaseSchemaAuditLogDeleteLog(BaseSchemaAuditLog):
     # Audit fields (Delete log)
     deleted_at: Mapped[Optional[datetime.datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True,
-        sort_order=104
+        sort_order=1004
     )
     deleted_by: Mapped[Optional[int]] = mapped_column(
         BigInteger, nullable=True,
-        sort_order=105
+        sort_order=1005
     )
 
 
