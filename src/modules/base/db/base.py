@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 
 
-metadata_obj = MetaData(schema="public")
+metadata_obj = MetaData()
 
 
 class BaseDB(AsyncAttrs, DeclarativeBase):
