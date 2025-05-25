@@ -1,7 +1,7 @@
 """Add organization configuration table
 
 Revision ID: 5b3efea308c9
-Revises: 8547ccfb65df
+Revises: 98d3ec8e554b
 Create Date: 2025-05-23 11:39:08.789248
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '5b3efea308c9'
-down_revision: Union[str, None] = '8547ccfb65df'
+down_revision: Union[str, None] = '98d3ec8e554b'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -12,7 +12,7 @@ class Lookup(AppBaseModelWithAuditLog):
     """
     Lookup model for the application.
     """
-    key: str = Field(default=None, description="Name",
+    lookup_key: str = Field(default=None, description="Name",
         exclude=True, max_length=128, examples=["my_lookup"])
     display_value: str = Field(default=None, description="Value",
         exclude=True, max_length=128, examples=["My Lookup Value"])
