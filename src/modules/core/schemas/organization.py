@@ -19,9 +19,9 @@ from modules.base.db.base import (
 )
 
 if TYPE_CHECKING:
-    from modules.core.schemas import LookUpSchema as LookUp
     from modules.core.schemas import (
-        OrganizationConfigurationSchema as OrganizationConfiguration
+        LookUpSchema,
+        OrganizationConfigurationSchema
     )
 
 
@@ -94,9 +94,9 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     )
 
     # Relationships
-    type: Mapped["LookUp"] = relationship(
-        "LookUp", back_populates="organizations"
+    type: Mapped["LookUpSchema"] = relationship(
+        single_parent=True, uselist=False
     )
-    configurations: Mapped[List["OrganizationConfiguration"]] = relationship(
-        back_populates="organizations"
+    configurations: Mapped[List["OrganizationConfigurationSchema"]] = relationship(
+        back_populates="organization"
     )

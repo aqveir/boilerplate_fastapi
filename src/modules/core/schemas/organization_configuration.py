@@ -16,11 +16,8 @@ from modules.base.enums import DataType
 
 if TYPE_CHECKING:
     from modules.core.schemas import (
-        ConfigurationSchema as Configuration
-    )
-
-    from modules.core.schemas import (
-        OrganizationSchema as Organization
+        ConfigurationSchema,
+        OrganizationSchema
     )
 
 
@@ -54,9 +51,9 @@ class OrganizationConfigurationSchema(BaseSchemaAuditLog, BaseDB):
     )
 
     # Relationships
-    organization: Mapped["Organization"] = relationship(
-        "Organization", back_populates="organization_configurations"
+    organization: Mapped["OrganizationSchema"] = relationship(
+        "OrganizationSchema", back_populates="configurations"
     )
-    configuration: Mapped["Configuration"] = relationship(
-        "Configuration", back_populates="organization_configurations"
+    configuration: Mapped["ConfigurationSchema"] = relationship(
+        single_parent=True, uselist=False
     )
