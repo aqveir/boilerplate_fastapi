@@ -85,7 +85,8 @@ class BaseSchemaUUID(AbstractBaseSchema):
 
     # Unique identifiers
     hash: Mapped[UUID] = mapped_column(
-        String, unique=True, index=True,
+        String(length=36), unique=True, index=True,
+        server_default=func.UUID(),
         sort_order=-9
     )
 
