@@ -4,7 +4,7 @@ from typing import List, Optional, TYPE_CHECKING
 
 # Importing necessary modules from SQLAlchemy
 from sqlalchemy import (
-    Float,
+    Double,
     ForeignKey,
     Integer,
     DateTime,
@@ -67,8 +67,8 @@ class OrganizationSchema(BaseSchemaUUIDAuditLogDeleteLog, BaseDB):
     state_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     country_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     zipcode: Mapped[Optional[str]] = mapped_column(String(32), nullable=True)
-    latitude: Mapped[float] = mapped_column(Float, nullable=True)
-    longitude: Mapped[float] = mapped_column(Float, nullable=True)
+    latitude: Mapped[float] = mapped_column(Double, nullable=True)
+    longitude: Mapped[float] = mapped_column(Double, nullable=True)
 
     # Contact fields
     phone: Mapped[str] = mapped_column(String(32), nullable=True, index=False)
