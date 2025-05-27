@@ -62,13 +62,16 @@ class BaseRepository(Generic[T]):
         :param join_: The joins to make.
         :return: A list of model instances.
         """
-        query = self._query(join_)
-        query = query.offset(skip).limit(limit)
+        try:
+            query = self._query(join_)
+            query = query.offset(skip).limit(limit)
 
-        if join_ is not None:
-            return await self._all_unique(query)
+            if join_ is not None:
+                return await self._all_unique(query)
 
-        return await self._all(query)
+            return await self._all(query)
+        except EntityNotFoundException as e:
+            raise e
 
     async def get_by(
         self,

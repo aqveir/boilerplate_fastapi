@@ -142,6 +142,15 @@ class JsonSuccessResponse(BaseResponse):
             )
             content = model.model_dump(mode="json")
 
+        # check content is a list
+        if isinstance(content, list):
+            model = SuccessModel[list](
+                status_code=status_code,
+                message=message,
+                data=content
+            )
+            content = model.model_dump(mode="json")
+
         # Add custom headers to the response
         if headers is None:
             headers = {}

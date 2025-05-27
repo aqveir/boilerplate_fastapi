@@ -1,6 +1,7 @@
 """ Import the required modules """
 import logging
 from typing import List
+from fastapi import Request
 from pydantic import TypeAdapter, BaseModel
 
 # Include the project models
@@ -8,7 +9,7 @@ from modules.core.models.organization.request import (
     OrganizationCreateRequest,
     OrganizationUpdateRequest
 )
-from modules.core.models.organization.organization import Organization
+from modules.core.models.organization import Organization
 
 # include the project services
 from modules.base.services.base import BaseService
@@ -108,15 +109,25 @@ class OrganizationService(BaseService):
 
     async def list(
             self,
-            payload: BaseModel,
+            request: Request,
             ip_address: str
         ) -> List[Organization]:
         """ List all the objects """
         try:
             # Validate the payload
-            # user: User = await self.repository.forgot_password(payload)
+            response = await self.repository.get_all(
+                skip=0, limit=25
+            )
+            logger.debug(f"Organization count: {len(response)}")
+            if not response:
+                raise EntityNotFoundException(
+                    message="Unable to get the organizations from IP address."
+                )
+            
+            # Validate the response
+            models: List[Organization] = TypeAdapter(List[Organization]).validate_python(response)
 
-            return payload
+            return models
         except Exception as e:
             raise e
 
@@ -128,16 +139,12 @@ class OrganizationService(BaseService):
         ) -> Organization:
         """ Get the object """
         try:
-            logger.info(f"OrganizationService.get: {uid}")
             # Validate the payload
             response = await self.repository.get_by_hash(uid)
             if not response:
                 raise EntityNotFoundException(
                     message="Unable to get the organization from IP address = " + ip_address
                 )
-
-            logger.info(f"OrganizationService.get: {response.id}")
-            logger.info(response.subdomain)
 
             # Validate the response
             model: Organization = TypeAdapter(Organization).validate_python(response)

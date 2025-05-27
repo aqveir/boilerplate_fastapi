@@ -1,8 +1,8 @@
 """ Import the required modules """
-from modules.base.repository.base import BaseRepository
+from modules.base.repository import BaseRepository
 
 # Import the schema and model classes
-from modules.core.schemas.organization import OrganizationSchema
+from modules.core.schemas import OrganizationSchema
 
 
 class OrganizationRepository(BaseRepository[OrganizationSchema]):
