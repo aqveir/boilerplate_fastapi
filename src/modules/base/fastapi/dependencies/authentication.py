@@ -10,7 +10,10 @@ from modules.user.models.user import User
 from modules.base.services.auth.claim_service import ClaimService
 
 # Include the project exceptions
-from modules.base.exceptions.base import *
+from modules.base.exceptions import (
+    InvalidTokenException,
+    AuthenticationException
+)
 
 
 class AuthGaurd:

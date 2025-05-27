@@ -1,12 +1,17 @@
 """ Import the required modules """
-from typing import Any
+from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Request
 
 # Import middlewares and dependencies
+from modules.base.fastapi.dependencies import (
+    common_parameters
+)
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
 
 # Include the project controllers
-from ..controllers.organization_controller import OrganizationController as Controller
+from ..controllers.organization_controller import (
+    OrganizationController as Controller
+)
 
 # Include the project models
 from ..models.organization.request import (
@@ -19,10 +24,14 @@ router = APIRouter(prefix="/organization", tags=["Organization"])
 
 
 @router.get("/",
-        dependencies=[Depends(AuthGaurd)],
+        dependencies=[
+            Depends(AuthGaurd),
+            Depends(common_parameters)
+        ],
         name="get_organizations"
     )
 async def index(
+        commons: Annotated[dict, Depends(common_parameters)],
         request: Request,
         auth: AuthGaurd = Depends(AuthGaurd)
     ) -> Any:
@@ -33,7 +42,7 @@ async def index(
     access_token: str = auth.valid_token()
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
-    return await Controller().index(request, current_user)
+    return await Controller().index(commons, request, current_user)
 
 
 @router.get("/{uid}",

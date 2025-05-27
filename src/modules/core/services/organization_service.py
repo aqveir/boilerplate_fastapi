@@ -109,6 +109,7 @@ class OrganizationService(BaseService):
 
     async def list(
             self,
+            commons: dict,
             request: Request,
             ip_address: str
         ) -> List[Organization]:
@@ -116,7 +117,8 @@ class OrganizationService(BaseService):
         try:
             # Validate the payload
             response = await self.repository.get_all(
-                skip=0, limit=25
+                skip=commons.get("skip", 0),
+                limit=commons.get("limit", 100),
             )
             logger.debug(f"Organization count: {len(response)}")
             if not response:

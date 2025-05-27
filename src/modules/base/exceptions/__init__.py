@@ -6,7 +6,9 @@ from .base import (
     EntityNotFoundException,
     EntityNotSavedException,
     AuthenticationException,
+    InvalidTokenException,
     ForbiddenException,
+    UnauthorizedException,
     NotFoundException,
     InternalServerErrorException,
     AWSValueException
@@ -20,8 +22,10 @@ __all__ = [
     "EntityNotFoundException",
     "EntityNotSavedException",
     "AuthenticationException",
+    "InvalidTokenException",
     "ForbiddenException",
+    "UnauthorizedException",
     "NotFoundException",
     "InternalServerErrorException",
-    "AWSValueException",
+    "AWSValueException"
 ]

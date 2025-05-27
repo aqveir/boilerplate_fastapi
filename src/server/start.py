@@ -19,7 +19,7 @@ from modules.user.routes.route import router as user_router
 from modules.base.fastapi.middlewares import SQLAlchemyMiddleware
 
 # Import the project exception handler
-from modules.base.exceptions.base import (
+from modules.base.exceptions import (
     BadRequestException,
     DuplicateValueException,
     EntityNotFoundException,
@@ -27,6 +27,9 @@ from modules.base.exceptions.base import (
     InvalidTokenException,
     ForbiddenException,
     UnauthorizedException,
+    NotFoundException,
+    InternalServerErrorException,
+    AWSValueException
 )
 from modules.base.exceptions.handler import custom_exception_handler
 
@@ -140,6 +143,18 @@ def init_handlers(_app: FastAPI) -> None:
     )
     _app.add_exception_handler(
         exc_class_or_status_code=UnauthorizedException,
+        handler=custom_exception_handler(),
+    )
+    _app.add_exception_handler(
+        exc_class_or_status_code=NotFoundException,
+        handler=custom_exception_handler(),
+    )
+    _app.add_exception_handler(
+        exc_class_or_status_code=InternalServerErrorException,
+        handler=custom_exception_handler(),
+    )
+    _app.add_exception_handler(
+        exc_class_or_status_code=AWSValueException,
         handler=custom_exception_handler(),
     )
 
