@@ -8,7 +8,7 @@ from modules.base.models.auth.token import Token
 from modules.base.models.auth.claim import AuthClaim
 
 # Exception classes
-from modules.base.exceptions.base import (
+from modules.base.exceptions import (
     InvalidTokenException
 )
 
@@ -52,12 +52,18 @@ class ClaimService:
         try:
             # Validate the payload
             if not isinstance(payload, dict):
-                raise InvalidTokenException(error_msg_code="error_code_invalid_payload")
+                raise InvalidTokenException(
+                    error_msg_code="error_code_invalid_payload",
+                    message="Payload must be a dictionary"
+                )
 
             # Generate a token
             token: Token = TokenHelper.encode(payload, expire_period=config.JWT_EXPIRES)
             if not token:
-                raise InvalidTokenException(error_msg_code="error_code_token_generation")
+                raise InvalidTokenException(
+                    error_msg_code="error_code_token_generation",
+                    message="Failed to generate token from payload"
+                )
 
             if isinstance(user, BaseModel):
                 user = user.model_dump(mode='json', exclude_none=True)
@@ -65,13 +71,16 @@ class ClaimService:
             # Create a claim with the token and user data
             claim: AuthClaim = AuthClaim(token=token, user=user)
             if not claim:
-                raise InvalidTokenException(error_msg_code="error_code_claim_generation")
+                raise InvalidTokenException(
+                    error_msg_code="error_code_claim_generation",
+                    message="Failed to generate claim from token"
+                )
 
             # Store the claim in storage
             self.store(claim)
 
             return claim
-        except Exception as e:
+        except (InvalidTokenException, Exception) as e:
             raise e
 
 
@@ -103,14 +112,15 @@ class ClaimService:
             )
             if not claim:
                 raise InvalidTokenException(
-                    error_msg_code="error_code_claim_not_found"
+                    error_msg_code="error_code_claim_not_found",
+                    message="Claim not found for the given value"
                 )
 
             # Validate the claim using TypeAdapter
             ta: TypeAdapter = TypeAdapter(AuthClaim)
             return ta.validate_python(claim)
-        except Exception as e:
-            raise e
+        except (InvalidTokenException, Exception):
+            raise
 
 
     def get_all(self, query: dict) -> List[AuthClaim]:
@@ -128,13 +138,14 @@ class ClaimService:
             )
             if not claims:
                 raise InvalidTokenException(
-                    error_msg_code="error_code_claim_not_found"
+                    error_msg_code="error_code_claim_not_found",
+                    message="Claims not found in the storage"
                 )
             
             # Validate the claim using TypeAdapter
             ta: TypeAdapter = TypeAdapter(List[AuthClaim])
             return ta.validate_python(claims)
-        except Exception as e:
+        except (InvalidTokenException, Exception) as e:
             raise e
 
 
@@ -150,8 +161,11 @@ class ClaimService:
                 claim.model_dump(mode='python', exclude_none=True),
             )
             if not response:
-                raise InvalidTokenException()
+                raise InvalidTokenException(
+                    error_msg_code="error_code_claim_storage_failed",
+                    message="Failed to store claim in the storage"
+                )
 
             return True
-        except Exception as e:
+        except (InvalidTokenException, Exception) as e:
             raise e

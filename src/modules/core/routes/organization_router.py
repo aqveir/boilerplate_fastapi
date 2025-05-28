@@ -9,7 +9,7 @@ from modules.base.fastapi.dependencies import (
 from modules.base.fastapi.dependencies.authentication import AuthGaurd
 
 # Include the project controllers
-from ..controllers.organization_controller import (
+from modules.core.controllers import (
     OrganizationController as Controller
 )
 
@@ -17,6 +17,11 @@ from ..controllers.organization_controller import (
 from ..models.organization.request import (
     OrganizationCreateRequest,
     OrganizationUpdateRequest
+)
+
+# Exception classes
+from modules.base.exceptions import (
+    InvalidTokenException
 )
 
 # Create the module router
@@ -40,6 +45,8 @@ async def index(
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
+    if not access_token:
+        raise InvalidTokenException()
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
     return await Controller().index(commons, request, current_user)
@@ -59,6 +66,8 @@ async def show(
     """
     #current_user = auth.current_user()
     access_token: str = auth.valid_token()
+    if not access_token:
+        raise
 
     current_user = {"id":1, "name":"test", "email":"amit@bond.ai"}
     return await Controller().show(uid, request, current_user)

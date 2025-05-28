@@ -1,6 +1,10 @@
 """ Import the required modules """
+import logging
 from http import HTTPStatus
 from botocore.exceptions import ClientError
+
+# Set Error logger
+logger = logging.getLogger("error")
 
 # Generic Exception : 400
 class GenericBaseException(Exception):
@@ -25,7 +29,8 @@ class GenericBaseException(Exception):
             self.message = message
         if error_msg_code:
             self.error_msg_code = error_msg_code
-        super().__init__(message=self.message)
+
+        super().__init__(self.message)
 
     def __str__(self):
         return (
@@ -118,7 +123,7 @@ class AuthenticationException(GenericBaseException):
         if error_msg_code:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=message, error_msg_code=self.error_msg_code)
 
 # Invalid Token Exception : 401
 class InvalidTokenException(AuthenticationException):
@@ -221,7 +226,7 @@ class ModelValidationException(GenericBaseException):
         if error_msg_code:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # Internal Server Error Exception : 500
 class InternalServerErrorException(GenericBaseException):
@@ -241,7 +246,7 @@ class InternalServerErrorException(GenericBaseException):
         if error_msg_code:
             self.error_msg_code = error_msg_code
 
-        super().__init__(message=message, error_msg_code=error_msg_code)
+        super().__init__(message=self.message, error_msg_code=self.error_msg_code)
 
 # AWS Exception : 400
 class AWSValueException(BadRequestException):

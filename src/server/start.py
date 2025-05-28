@@ -178,7 +178,7 @@ async def lifespan(_app: FastAPI):
         init_routers(_app=_app)
 
         # Initilize Exception Handlers
-        init_handlers(_app=_app)
+        # init_handlers(_app=_app)
 
         yield
     finally:
@@ -212,7 +212,11 @@ app = FastAPI(
 # Create an instance of the OAuth2PasswordBearer class
 #oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+""" Add Exception Handlers
 
+This is used to handle the exceptions raised in the application.
+"""
+init_handlers(app)
 
 @app.get("/")
 async def root():

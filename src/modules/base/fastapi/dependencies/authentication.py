@@ -1,3 +1,4 @@
+""" Import the required modules """
 from typing import Annotated
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -24,10 +25,23 @@ class AuthGaurd:
         token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer(auto_error=False))],
         claim_service: ClaimService = Depends(ClaimService)
     ):
-        if not token:
-            raise InvalidTokenException()
-        self.access_token = token.credentials
-        self.claim_service = claim_service
+        """ Initialize the AuthGaurd with the provided token and claim service.
+        This class is used to validate the access token and retrieve the user
+        associated with the token. If the token is not provided or invalid,
+        an InvalidTokenException is raised.
+        Args:
+            token (HTTPAuthorizationCredentials): The access token provided in the request.
+            claim_service (ClaimService): The service to handle claims and user retrieval.
+        """
+        try :
+            if not token:
+                raise InvalidTokenException(
+                    error_msg_code="error_code_claim_not_found"
+                )
+            self.access_token = token.credentials
+            self.claim_service = claim_service
+        except Exception as e:
+            raise e
 
 
     def access_token(self) -> str:
@@ -43,10 +57,12 @@ class AuthGaurd:
             # This could be JWT validation.
             claim: AuthClaim = self.claim_service.get(value=self.access_token)
             if claim is None:
-                raise InvalidTokenException()
+                raise InvalidTokenException(
+                    error_msg_code="error_code_claim_not_found1"
+                )
 
             return self.access_token
-        except Exception as e:
+        except (InvalidTokenException, Exception) as e:
             raise e
 
 
@@ -55,12 +71,14 @@ class AuthGaurd:
             # This could be JWT validation.
             claim: AuthClaim = self.claim_service.get(value=self.access_token)
             if claim == None:
-                raise InvalidTokenException()
+                raise InvalidTokenException(
+                    error_msg_code="error_code_claim_not_found2"
+                )
             
             user = claim.user
 
             return user
-        except Exception as e:
+        except (InvalidTokenException, Exception) as e:
             raise e
 
     
