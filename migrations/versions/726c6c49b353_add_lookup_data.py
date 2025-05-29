@@ -33,32 +33,52 @@ def upgrade() -> None:
     op.bulk_insert(
         lookup_table,
         [
+            # Add organization types
             {
-                'lookup_type': 'entity_type',
-                'lookup_key': 'entity_type_contact',
-                'display_value': 'Contact',
-                'description': 'Contact',
+                'lookup_type': 'organization_type',
+                'lookup_key': 'organization_type_corporate',
+                'display_value': 'Corporate',
+                'description': 'Corporate, Business',
                 'is_default': True,
                 'is_secure': True,
                 'order_by': 0
             },
             {
-                'lookup_type': 'entity_type',
-                'lookup_key': 'entity_type_reseller',
+                'lookup_type': 'organization_type',
+                'lookup_key': 'organization_type_reseller',
                 'display_value': 'Reseller',
                 'description': 'Reseller, Partner',
-                'is_default': True,
+                'is_default': False,
                 'is_secure': True,
                 'order_by': 1
             },
             {
-                'lookup_type': 'entity_type',
-                'lookup_key': 'entity_type_internal',
+                'lookup_type': 'organization_type',
+                'lookup_key': 'organization_type_internal',
                 'display_value': 'Internal',
                 'description': 'Internal, Employee',
-                'is_default': True,
+                'is_default': False,
                 'is_secure': True,
                 'order_by': 2
+            },
+            {
+                'lookup_type': 'organization_type',
+                'lookup_key': 'organization_type_individual',
+                'display_value': 'Individual',
+                'description': 'Individual, Personal',
+                'is_default': False,
+                'is_secure': True,
+                'order_by': 3
+            },
+            # Add organization industries types
+            {
+                'lookup_type': 'organization_industry',
+                'lookup_key': 'organization_industry_default',
+                'display_value': 'Default',
+                'description': 'Default, Vanilla Industry',
+                'is_default': True,
+                'is_secure': True,
+                'order_by': 0
             },
         ],
         multiinsert=False

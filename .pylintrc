@@ -1,5 +1,5 @@
 [MASTER]
-ignore=venv,build,migrations
+ignore=venv,migrations
 jobs=1
 load-plugins=
 
@@ -21,13 +21,5 @@ max-returns=6
 max-branches=12
 max-statements=50
 
-[TYPECHECK]
-ignored-modules=
-
 [LOGGING]
 logging-modules=logging
-
-[IMPORTS]
-known-standard-library=
-known-third-party=
-known-first-party=
